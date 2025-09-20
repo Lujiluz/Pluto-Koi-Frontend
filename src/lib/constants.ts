@@ -111,16 +111,6 @@ export const NAVIGATION = {
     { label: "Galeri", href: "/galeri" },
     { label: "Belanja", href: "/belanja" },
   ],
-  admin: [
-    { label: "Dashboard", href: "/admin" },
-    { label: "Koi Management", href: "/admin/koi" },
-    { label: "Auctions", href: "/admin/lelang" },
-    { label: "Products", href: "/admin/products" },
-    { label: "Users", href: "/admin/users" },
-    { label: "Orders", href: "/admin/orders" },
-    { label: "Gallery", href: "/admin/gallery" },
-    { label: "Settings", href: "/admin/settings" },
-  ],
 } as const;
 
 // Site configuration
@@ -128,6 +118,6 @@ export const SITE_CONFIG = {
   name: "Pluto Koi",
   description: "Temukan Keseruan Lelang & Belanja Ikan Favoritmu!",
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  logo: "/images/logo.png",
+  logo: "/images/pluto-koi-logo.svg",
   favicon: "/favicon.ico",
 } as const;
