@@ -119,5 +119,5 @@ export const SITE_CONFIG = {
   description: "Temukan Keseruan Lelang & Belanja Ikan Favoritmu!",
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   logo: "/images/pluto-koi-logo.svg",
-  favicon: "/favicon.ico",
+  favicon: "/images/pluto-koi-icon.svg",
 } as const;

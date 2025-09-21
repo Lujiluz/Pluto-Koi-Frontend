@@ -25,9 +25,9 @@ export default function Header() {
 
           {/* Desktop Nav */}
           <div className="bg-primary flex items-center justify-end lg:justify-between h-full w-[65%] px-8">
-            <nav className="hidden lg:flex items-center space-x-8">
+            <nav className="hidden lg:flex items-center space-x-12">
               {NAVIGATION.main.map((item) => (
-                <Link key={item.href} href={item.href} className="nav-link-desktop text-white text-responsive-base font-bold">
+                <Link key={item.href} href={item.href} className="nav-link-desktop text-white text-responsive-base !font-medium">
                   {item.label}
                 </Link>
               ))}
@@ -35,7 +35,7 @@ export default function Header() {
 
             {/* Desktop Login/Register CTA */}
             <div className="hidden lg:flex items-center space-x-4">
-              <Link href="/auth/register" className="btn-tersier !text-white !border-white !hover:bg-primary-500 px-6 py-2">
+              <Link href="/auth/register" className="btn-tersier !text-white !font-medium !border-white !hover:bg-primary-500 px-6 py-2">
                 Daftar
               </Link>
               <Link href="/auth/login" className="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-2 rounded-lg transition-colors duration-200">
