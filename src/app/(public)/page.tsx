@@ -1,6 +1,7 @@
 import Image from "next/image";
 import LiquidGlassContainer from "../components/ui/LiquidGlassContainer";
 import { ArrowRight } from "react-feather";
+import { FishIcon, PeopleIcon, TrophyIcon } from "../components/icons/landingPage";
 
 export default function Home() {
   return (
@@ -32,6 +33,49 @@ export default function Home() {
                 <ArrowRight size={18} />
               </button>
             </LiquidGlassContainer>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="section-padding bg-[#FFE6E630]">
+        <div className="container-custom px-8 flex gap-28">
+          {/* Section Header */}
+          <div className="max-w-2/5 mb-16">
+            <h2 className="text-responsive-3xl font-bold text-black mb-6 leading-tight">
+              Nikmati <span className="text-primary">3 Fitur</span> Utama Kami
+            </h2>
+            <p className="text-responsive-base text-gray-600 leading-relaxed">Mulai dari ikut lelang real-time, belanja perlengkapan memancing & ikan segar, hingga melihat galeri momen seru komunitas — semua ada di satu platform.*</p>
+          </div>
+
+          {/* Features Grid */}
+          <div className="grid gap-x-20 gap-y-14">
+            {/* Feature 1 - Lelang Seru, Real-Time! */}
+            <div className="w-3xs">
+              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center  mb-9">
+                <FishIcon />
+              </div>
+              <h3 className="text-xl font-semibold text-black mb-4">Lelang Seru, Real-Time!</h3>
+              <p className="text-gray-600 leading-relaxed">Ikuti bid secara langsung dengan countdown dan leaderboard, pastikan kamu jadi pemenangnya!</p>
+            </div>
+
+            {/* Feature 2 - Lihat Momen Seru */}
+            <div className="w-3xs">
+              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center  mb-9">
+                <PeopleIcon />
+              </div>
+              <h3 className="text-xl font-semibold text-black mb-4">Lihat Momen Seru*</h3>
+              <p className="text-gray-600 leading-relaxed">Nikmati foto dan video dari event memancing serta hasil tangkapan terbaik komunitas kami.</p>
+            </div>
+
+            {/* Feature 3 - Belanja Ikan & Alat Pancing */}
+            <div className="w-3xs col-span-2">
+              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center  mb-9">
+                <TrophyIcon />
+              </div>
+              <h3 className="text-xl font-semibold text-black mb-4">Belanja Ikan & Alat Pancing</h3>
+              <p className="text-gray-600 leading-relaxed">Temukan ikan segar dan perlengkapan memancing terbaik, siap kirim langsung ke rumahmu.</p>
+            </div>
           </div>
         </div>
       </section>
