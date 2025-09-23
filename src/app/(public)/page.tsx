@@ -3,6 +3,9 @@ import LiquidGlassContainer from "../components/ui/LiquidGlassContainer";
 import { ArrowRight } from "react-feather";
 import { FishIcon, PeopleIcon, TrophyIcon } from "../components/icons/landingPage";
 import AuctionSection from "../components/sections/AuctionSection";
+import MomentsSection from "../components/sections/MomentsSection";
+import ProductsSection from "../components/sections/ProductsSection";
+import Footer from "../components/layout/public/Footer";
 
 export default function Home() {
   return (
@@ -84,35 +87,14 @@ export default function Home() {
       {/* Auction Section */}
       <AuctionSection />
 
-      {/* Demo Section - Different Variants */}
-      <section className="section-padding bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="container-custom">
-          <h2 className="text-responsive-2xl font-bold text-center mb-12">Liquid Glass Components Demo</h2>
+      {/* Moments Section */}
+      <MomentsSection />
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Default Variant */}
-            <LiquidGlassContainer variant="default" padding="lg" className="text-center">
-              <h3 className="text-xl font-semibold mb-3">Default Glass</h3>
-              <p className="text-sm opacity-80 mb-4">Subtle glass effect with light background blur.</p>
-              <button className="btn-primary">Learn More</button>
-            </LiquidGlassContainer>
+      {/* Products Section */}
+      <ProductsSection />
 
-            {/* Subtle Variant */}
-            <LiquidGlassContainer variant="subtle" padding="lg" className="text-center">
-              <h3 className="text-xl font-semibold mb-3">Subtle Glass</h3>
-              <p className="text-sm opacity-80 mb-4">Very light glass effect for minimal designs.</p>
-              <button className="btn-secondary">Learn More</button>
-            </LiquidGlassContainer>
-
-            {/* Liquid Glass Variant */}
-            <LiquidGlassContainer variant="liquid-glass" padding="lg" className="text-center text-white">
-              <h3 className="text-xl font-semibold mb-3">Liquid Glass</h3>
-              <p className="text-sm opacity-90 mb-4">Premium liquid glass effect with David UI styling.</p>
-              <button className="btn-liquid-glass">Learn More</button>
-            </LiquidGlassContainer>
-          </div>
-        </div>
-      </section>
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

@@ -104,14 +104,14 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
                   <button
                     onClick={prevImage}
                     disabled={currentImageIndex === 0}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft size={16} />
                   </button>
                   <button
                     onClick={nextImage}
                     disabled={currentImageIndex === auction.images.length - 1}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronRight size={16} />
                   </button>

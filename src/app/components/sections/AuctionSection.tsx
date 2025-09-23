@@ -28,7 +28,7 @@ export default function AuctionSection() {
             <h2 className="text-responsive-3xl font-bold text-black mb-6 leading-tight">
               <span className="text-primary">Lelang</span> Sedang Berlangsung
             </h2>
-            <p className="text-responsive-base text-gray-600 leading-relaxed max-w-2xl">{auctionSection.subtitle}</p>
+            <p className="text-responsive-base text-gray-800 leading-relaxed max-w-2xl">{auctionSection.subtitle}</p>
           </div>
 
           {/* Auction Grid */}
