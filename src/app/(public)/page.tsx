@@ -2,6 +2,7 @@ import Image from "next/image";
 import LiquidGlassContainer from "../components/ui/LiquidGlassContainer";
 import { ArrowRight } from "react-feather";
 import { FishIcon, PeopleIcon, TrophyIcon } from "../components/icons/landingPage";
+import AuctionSection from "../components/sections/AuctionSection";
 
 export default function Home() {
   return (
@@ -79,6 +80,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Auction Section */}
+      <AuctionSection />
 
       {/* Demo Section - Different Variants */}
       <section className="section-padding bg-gradient-to-br from-blue-50 to-indigo-100">

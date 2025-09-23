@@ -37,13 +37,16 @@ export interface Auction extends BaseEntity {
   description: string;
   koiFish: KoiFish;
   koiFishId: string;
+  images: string[];
   startPrice: number;
   currentPrice: number;
+  highestBid: number;
   buyNowPrice?: number;
   startTime: Date;
   endTime: Date;
-  status: "upcoming" | "active" | "completed" | "cancelled";
+  status: "upcoming" | "active" | "ending-soon" | "completed" | "cancelled";
   bids: Bid[];
+  bidCount: number;
   winner?: User;
   winnerId?: string;
 }
