@@ -7,6 +7,17 @@
   --black: #050505;
 }
 
+/* globals.css */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
 @theme inline {
   /* Colors */
   --color-primary-50: #ffe5e5;
@@ -110,6 +121,7 @@ h6 {
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .btn-primary:hover {

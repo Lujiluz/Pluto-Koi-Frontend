@@ -80,7 +80,7 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={handleOverlayClick}>
-      <div ref={modalRef} className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div ref={modalRef} className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto  no-scrollbar" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-4">
           <h2 className="text-2xl font-semibold text-black">Masukkan Tawaran Anda</h2>

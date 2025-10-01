@@ -5,12 +5,41 @@ import Link from "next/link";
 import Image from "next/image";
 import { NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import RegisterModal from "../../common/RegisterModal";
+import LoginModal from "../../common/LoginModal";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const openRegisterModal = () => {
+    setIsRegisterModalOpen(true);
+    setIsMobileMenuOpen(false);
+  };
+
+  const openLoginModal = () => {
+    setIsLoginModalOpen(true);
+    setIsMobileMenuOpen(false);
+  };
+
+  const closeModals = () => {
+    setIsRegisterModalOpen(false);
+    setIsLoginModalOpen(false);
+  };
+
+  const switchToLogin = () => {
+    setIsRegisterModalOpen(false);
+    setIsLoginModalOpen(true);
+  };
+
+  const switchToRegister = () => {
+    setIsLoginModalOpen(false);
+    setIsRegisterModalOpen(true);
   };
 
   return (
@@ -35,12 +64,12 @@ export default function Header() {
 
             {/* Desktop Login/Register CTA */}
             <div className="hidden lg:flex items-center space-x-4">
-              <Link href="/auth/register" className="btn-tersier !text-white !font-medium !border-white !hover:bg-primary-500 px-6 py-2">
+              <button onClick={openRegisterModal} className="btn-tersier !text-white !font-medium !border-white !hover:bg-primary-500 px-6 py-2">
                 Daftar
-              </Link>
-              <Link href="/auth/login" className="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-2 rounded-lg transition-colors duration-200">
+              </button>
+              <button onClick={openLoginModal} className="bg-white text-primary cursor-pointer hover:bg-gray-100 font-medium px-6 py-2 rounded-lg transition-colors duration-200">
                 Masuk
-              </Link>
+              </button>
             </div>
 
             {/* Mobile Menu Button */}
@@ -61,16 +90,20 @@ export default function Header() {
               </Link>
             ))}
             <div className="flex flex-col space-y-2 pt-4">
-              <Link href="/auth/register" className="btn-outline py-2 text-center" onClick={() => setIsMobileMenuOpen(false)}>
+              <button onClick={openRegisterModal} className="btn-outline py-2 text-center">
                 Daftar
-              </Link>
-              <Link href="/auth/login" className="btn-primary hover:bg-gray-100 font-medium py-2 rounded-lg transition-colors text-center" onClick={() => setIsMobileMenuOpen(false)}>
+              </button>
+              <button onClick={openLoginModal} className="btn-primary hover:bg-gray-100 font-medium py-2 rounded-lg transition-colors text-center">
                 Masuk
-              </Link>
+              </button>
             </div>
           </nav>
         </div>
       </div>
+
+      {/* Modals */}
+      <RegisterModal isOpen={isRegisterModalOpen} onClose={closeModals} onSwitchToLogin={switchToLogin} />
+      <LoginModal isOpen={isLoginModalOpen} onClose={closeModals} onSwitchToRegister={switchToRegister} />
     </header>
   );
 }
