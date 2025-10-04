@@ -5,7 +5,7 @@ import { mockProductsData, productsSection } from "@/app/data/products";
 
 export default function ProductsSection() {
   return (
-    <section className="section-padding bg-white">
+    <section className="section-padding bg-white" id="belanja">
       <div className="container-custom px-8 flex flex-col">
         {/* Section Header */}
         <div className="mb-12 flex md:flex-row flex-col justify-between">

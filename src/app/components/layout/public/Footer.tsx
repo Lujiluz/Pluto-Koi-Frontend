@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { TwitterIcon, FacebookIcon, InstagramIcon } from "../../icons/landingPage";
-import { SITE_CONFIG } from "@/lib/constants";
+import { NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 import Link from "next/link";
 
 export default function Footer() {
@@ -35,7 +35,7 @@ export default function Footer() {
 
           {/* Navigation Links */}
           <nav className="flex flex-wrap items-center justify-center gap-12 lg:gap-16">
-            {navigationLinks.map((link) => (
+            {NAVIGATION.main.map((link) => (
               <a key={link.label} href={link.href} className="font-bold hover:text-gray-300 transition-colors duration-300 text-base lg:text-lg">
                 {link.label}
               </a>

@@ -1,17 +1,22 @@
+"use client";
+
 import Image from "next/image";
 import LiquidGlassContainer from "../components/ui/LiquidGlassContainer";
 import { ArrowRight } from "react-feather";
 import { FishIcon, PeopleIcon, TrophyIcon } from "../components/icons/landingPage";
 import AuctionSection from "../components/sections/AuctionSection";
+import AuthRequiredSection from "../components/sections/AuthRequiredSection";
 import MomentsSection from "../components/sections/MomentsSection";
 import ProductsSection from "../components/sections/ProductsSection";
 import Footer from "../components/layout/public/Footer";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
+  const { isAuthenticated, isLoading } = useAuth();
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center">
+      <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center" id="beranda">
         {/* Background */}
         <Image src="/hero/hero-background.webp" alt="Koi Fish Background" fill className="object-cover object-center" priority />
 
@@ -42,7 +47,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="section-padding bg-[#FFE6E630]">
+      <section className="section-padding bg-[#FFE6E630]" id="fitur">
         <div className="container-custom px-8 flex gap-28">
           {/* Section Header */}
           <div className="max-w-2/5 mb-16">
@@ -84,8 +89,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Auction Section */}
-      <AuctionSection />
+      {/* Auction Section - Only show for authenticated users */}
+      {!isLoading && (isAuthenticated ? <AuctionSection /> : <AuthRequiredSection />)}
 
       {/* Moments Section */}
       <MomentsSection />

@@ -21,7 +21,7 @@ export default function AuctionSection() {
 
   return (
     <>
-      <section className="section-padding bg-white mx-8">
+      <section className="section-padding bg-white mx-8" id="lelang">
         <div className="container-custom">
           {/* Section Header */}
           <div className="mb-12 flex md:flex-row flex-col justify-between">

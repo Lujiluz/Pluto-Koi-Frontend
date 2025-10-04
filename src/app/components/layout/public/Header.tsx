@@ -5,13 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { LogOut, User } from "react-feather";
 import RegisterModal from "../../common/RegisterModal";
 import LoginModal from "../../common/LoginModal";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const { user, isAuthenticated, logout, refreshAuth } = useAuth();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -42,6 +45,17 @@ export default function Header() {
     setIsRegisterModalOpen(true);
   };
 
+  const handleLogout = () => {
+    logout();
+    setIsMobileMenuOpen(false);
+  };
+
+  // Function to handle successful login/register
+  const handleAuthSuccess = () => {
+    refreshAuth();
+    closeModals();
+  };
+
   return (
     <header className="sticky top-0 z-50 shadow-lg">
       <div className="container-custom">
@@ -64,12 +78,27 @@ export default function Header() {
 
             {/* Desktop Login/Register CTA */}
             <div className="hidden lg:flex items-center space-x-4">
-              <button onClick={openRegisterModal} className="btn-tersier !text-white !font-medium !border-white !hover:bg-primary-500 px-6 py-2">
-                Daftar
-              </button>
-              <button onClick={openLoginModal} className="bg-white text-primary cursor-pointer hover:bg-gray-100 font-medium px-6 py-2 rounded-lg transition-colors duration-200">
-                Masuk
-              </button>
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2 text-white">
+                    <User size={18} />
+                    <span className="font-medium">{user?.name}</span>
+                  </div>
+                  <button onClick={handleLogout} className="flex items-center space-x-1 bg-white text-primary hover:bg-gray-100 font-medium px-4 py-2 rounded-lg transition-colors duration-200">
+                    <LogOut size={16} />
+                    <span>Keluar</span>
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button onClick={openRegisterModal} className="btn-tersier !text-white !font-medium !border-white !hover:bg-primary-500 px-6 py-2">
+                    Daftar
+                  </button>
+                  <button onClick={openLoginModal} className="bg-white text-primary cursor-pointer hover:bg-gray-100 font-medium px-6 py-2 rounded-lg transition-colors duration-200">
+                    Masuk
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -90,20 +119,35 @@ export default function Header() {
               </Link>
             ))}
             <div className="flex flex-col space-y-2 pt-4">
-              <button onClick={openRegisterModal} className="btn-outline py-2 text-center">
-                Daftar
-              </button>
-              <button onClick={openLoginModal} className="btn-primary hover:bg-gray-100 font-medium py-2 rounded-lg transition-colors text-center">
-                Masuk
-              </button>
+              {isAuthenticated ? (
+                <div className="flex flex-col space-y-2">
+                  <div className="flex items-center space-x-2 px-6 py-2 text-gray-700">
+                    <User size={18} />
+                    <span className="font-medium">{user?.name}</span>
+                  </div>
+                  <button onClick={handleLogout} className="flex items-center justify-center space-x-2 btn-outline py-2 text-center">
+                    <LogOut size={16} />
+                    <span>Keluar</span>
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button onClick={openRegisterModal} className="btn-outline py-2 text-center">
+                    Daftar
+                  </button>
+                  <button onClick={openLoginModal} className="btn-primary hover:bg-gray-100 font-medium py-2 rounded-lg transition-colors text-center">
+                    Masuk
+                  </button>
+                </>
+              )}
             </div>
           </nav>
         </div>
       </div>
 
       {/* Modals */}
-      <RegisterModal isOpen={isRegisterModalOpen} onClose={closeModals} onSwitchToLogin={switchToLogin} />
-      <LoginModal isOpen={isLoginModalOpen} onClose={closeModals} onSwitchToRegister={switchToRegister} />
+      <RegisterModal isOpen={isRegisterModalOpen} onClose={closeModals} onSwitchToLogin={switchToLogin} onSuccess={handleAuthSuccess} />
+      <LoginModal isOpen={isLoginModalOpen} onClose={closeModals} onSwitchToRegister={switchToRegister} onSuccess={handleAuthSuccess} />
     </header>
   );
 }

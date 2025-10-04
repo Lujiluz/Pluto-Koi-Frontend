@@ -2,23 +2,27 @@
 
 import { useState } from "react";
 import { X, Eye, EyeOff, AlertCircle, XCircle } from "react-feather";
+import { registerUser, validateEmail, validatePassword, validateName, validatePasswordMatch } from "@/services/authService";
+import { UserRole } from "@/lib/types";
 
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToLogin: () => void;
+  onSuccess?: () => void;
 }
 
 interface ValidationErrors {
-  fullName?: string;
+  name?: string;
   email?: string;
   password?: string;
   confirmPassword?: string;
+  general?: string;
 }
 
-export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModalProps) {
+export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: RegisterModalProps) {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -50,28 +54,65 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setErrors({});
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Client-side validation
+      const nameError = validateName(formData.name);
+      const emailError = validateEmail(formData.email);
+      const passwordError = validatePassword(formData.password);
+      const confirmPasswordError = validatePasswordMatch(formData.password, formData.confirmPassword);
 
-      // Handle registration logic here
-      console.log("Register form submitted:", formData);
-      onClose();
+      if (nameError || emailError || passwordError || confirmPasswordError) {
+        setErrors({
+          name: nameError || undefined,
+          email: emailError || undefined,
+          password: passwordError || undefined,
+          confirmPassword: confirmPasswordError || undefined,
+        });
+        return;
+      }
 
-      // Reset form
-      setFormData({
-        fullName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        rememberMe: false,
+      // Call register API
+      const response = await registerUser({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: UserRole.endUser,
       });
-      setErrors({});
+
+      console.log("response: ", response);
+
+      if (response.success) {
+        // Registration successful
+        console.log("Registration successful:", response.data);
+
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          rememberMe: false,
+        });
+        setErrors({});
+
+        onClose();
+        onSuccess?.(); // Call success callback to refresh auth state
+
+        // You can add a success message here
+      } else {
+        // Registration failed
+        setErrors({
+          general: response.error || "Registration failed. Please try again.",
+        });
+      }
     } catch (error) {
       console.error("Registration error:", error);
+      setErrors({
+        general: "An unexpected error occurred. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -110,25 +151,33 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* General Error Message */}
+          {errors.general && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <AlertCircle size={16} />
+              <span>{errors.general}</span>
+            </div>
+          )}
+
           <div className="grid grid-rows-2 grid-cols-2 gap-8">
-            {/* Full Name */}
+            {/* Name */}
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium mb-2">
+              <label htmlFor="name" className="block text-sm font-medium mb-2">
                 Nama Lengkap
               </label>
               <input
                 type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
-                placeholder="Muhammad Zulfajri"
+                placeholder="John Doe"
                 className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors duration-200 ${
-                  errors.fullName ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200"
+                  errors.name ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200"
                 }`}
                 required
               />
-              <ErrorMessage error={errors.fullName} />
+              <ErrorMessage error={errors.name} />
             </div>
 
             {/* Email */}
@@ -142,7 +191,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                placeholder="Zulfajri123@gmail.com"
+                placeholder="john.doe@example.com"
                 className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors duration-200 ${
                   errors.email ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200"
                 }`}

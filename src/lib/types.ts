@@ -5,13 +5,41 @@ export interface BaseEntity {
   updatedAt: Date;
 }
 
+// Auth types
+export enum UserRole {
+  admin = "admin",
+  endUser = "endUser",
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+  role?: UserRole;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    user: User;
+    token: string;
+  };
+  error?: string;
+}
+
 // User types
 export interface User extends BaseEntity {
   name: string;
   email: string;
   phone?: string;
   avatar?: string;
-  role: "admin" | "user";
+  role: UserRole;
   isActive: boolean;
 }
 

@@ -5,7 +5,7 @@ import { mockMomentsData, momentsSection } from "@/app/data/moments";
 
 export default function MomentsSection() {
   return (
-    <section className="section-padding mx-6">
+    <section className="section-padding mx-6" id="galeri">
       <div className="container-custom">
         {/* Section Header */}
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start mb-12">

@@ -2,19 +2,22 @@
 
 import { useState } from "react";
 import { X, Eye, EyeOff, AlertCircle, XCircle } from "react-feather";
+import { loginUser, validateEmail, validatePassword } from "@/services/authService";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToRegister: () => void;
+  onSuccess?: () => void;
 }
 
 interface ValidationErrors {
   email?: string;
   password?: string;
+  general?: string;
 }
 
-export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSuccess }: LoginModalProps) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -45,27 +48,53 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setErrors({});
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Client-side validation
+      const emailError = validateEmail(formData.email);
+      const passwordError = validatePassword(formData.password);
 
-      // Handle login logic here
-      console.log("Login form submitted:", formData);
-      onClose();
+      if (emailError || passwordError) {
+        setErrors({
+          email: emailError || undefined,
+          password: passwordError || undefined,
+        });
+        return;
+      }
 
-      // Reset form
-      setFormData({
-        email: "",
-        password: "",
-        rememberMe: false,
+      // Call login API
+      const response = await loginUser({
+        email: formData.email,
+        password: formData.password,
       });
-      setErrors({});
+
+      if (response.success) {
+        // Login successful
+        console.log("Login successful:", response.data);
+
+        // Reset form
+        setFormData({
+          email: "",
+          password: "",
+          rememberMe: false,
+        });
+        setErrors({});
+
+        onClose();
+        onSuccess?.(); // Call success callback to refresh auth state
+      } else {
+        // Login failed
+        setErrors({
+          general: response.error || "Login failed. Please try again.",
+        });
+      }
     } catch (error) {
       console.error("Login error:", error);
-      // Handle login error (could set a general error message)
+      setErrors({
+        general: "An unexpected error occurred. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -105,6 +134,14 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* General Error Message */}
+          {errors.general && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <AlertCircle size={16} />
+              <span>{errors.general}</span>
+            </div>
+          )}
+
           {/* Email */}
           <div>
             <label htmlFor="loginEmail" className="block text-sm font-medium mb-2">
@@ -116,7 +153,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="Zulfajri123@gmail.com"
+              placeholder="john.doe@example.com"
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors duration-200 ${
                 errors.email ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200"
               }`}
