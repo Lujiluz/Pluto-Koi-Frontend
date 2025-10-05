@@ -8,6 +8,7 @@ import GallerySection from "../components/sections/GallerySection";
 import ProductsSection from "../components/sections/ProductsSection";
 import Footer from "../components/layout/public/Footer";
 import ClientAuthWrapper from "../components/ClientAuthWrapper";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -34,10 +35,10 @@ export default function Home() {
                 <br />& Belanja Ikan Favoritmu!
               </h1>
               <p className="text-responsive-md opacity-90 mb-8 leading-relaxed">Ikut bid, belanja alat, atau lihat galeri hasil lelang kami.</p>
-              <button className="btn-primary inline-flex items-center gap-2 text-responsive-base">
+              <Link href="#lelang" className="btn-primary inline-flex items-center gap-2 text-responsive-base">
                 Mulai Ikut Lelang
                 <ArrowRight size={18} />
-              </button>
+              </Link>
             </LiquidGlassContainer>
           </div>
         </div>

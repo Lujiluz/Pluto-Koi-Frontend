@@ -5,11 +5,12 @@ import { useGalleries, useRefreshGalleries } from "@/hooks/useGalleries";
 import { GalleryQueryParams } from "@/services/galleryService";
 import GalleryCard from "@/app/components/common/GalleryCard";
 import { RefreshCw, AlertCircle } from "react-feather";
+import Link from "next/link";
 
 export default function GallerySectionClient() {
   const [queryParams, setQueryParams] = useState<GalleryQueryParams>({
     page: 1,
-    limit: 6, // Show 6 items in bento grid
+    limit: 4, // Show 6 items in bento grid
     isActive: true, // Only show active galleries
   });
 
@@ -80,9 +81,11 @@ export default function GallerySectionClient() {
               <span className="text-primary">Galeri</span> & Momen
             </h2>
             {data?.data.statistics && (
-              <p className="text-sm text-gray-600">
-                {data.data.statistics.totalGalleries} galeri • {data.data.statistics.totalMediaFiles} media
-              </p>
+              <>
+                <Link href="/galeri">
+                  <span className="text-sm text-gray-600 underline hover:text-primary transition-colors leading-tight">Lihat Semua Galeri</span>
+                </Link>
+              </>
             )}
           </div>
           <div className="flex items-start justify-between">
@@ -124,18 +127,9 @@ export default function GallerySectionClient() {
                     className = "md:col-span-1";
                 }
 
-                return <GalleryCard key={gallery._id} gallery={gallery} size={index === 0 || index === 3 ? "large" : "medium"} className={className} />;
+                return <GalleryCard key={gallery._id} gallery={gallery} size="medium" className={className} />;
               })}
             </div>
-
-            {/* Load More Button */}
-            {data?.data.metadata.hasNextPage && (
-              <div className="text-center">
-                <button onClick={handleLoadMore} className="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors">
-                  Lihat Lebih Banyak
-                </button>
-              </div>
-            )}
           </>
         )}
       </div>

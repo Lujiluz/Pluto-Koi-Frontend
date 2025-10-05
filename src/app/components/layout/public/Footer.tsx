@@ -8,14 +8,6 @@ import Link from "next/link";
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
-  const navigationLinks = [
-    { label: "Beranda", href: "/" },
-    { label: "Fitur", href: "/fitur" },
-    { label: "Lelang", href: "/lelang" },
-    { label: "Galeri", href: "/galeri" },
-    { label: "Belanja", href: "/belanja" },
-  ];
-
   const socialLinks = [
     { icon: TwitterIcon, href: "#", label: "Twitter" },
     { icon: FacebookIcon, href: "#", label: "Facebook" },
