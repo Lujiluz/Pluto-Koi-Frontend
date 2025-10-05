@@ -153,6 +153,52 @@ export interface GalleryApiResponse {
   };
 }
 
+// Backend Product Media
+export interface ProductMedia {
+  fileUrl: string;
+  _id: string;
+  mediaType?: "image" | "video"; // Optional, will be determined from file extension
+}
+
+// Backend Product (from your API response)
+export interface BackendProduct {
+  _id: string;
+  productName: string;
+  productPrice: number;
+  isActive: boolean;
+  media: ProductMedia[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+// Backend Product API Response Structure
+export interface ProductApiResponse {
+  status: string;
+  message: string;
+  data: {
+    products: BackendProduct[];
+    metadata: {
+      page: number;
+      limit: number;
+      totalItems: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+    statistics: {
+      totalProducts: number;
+      activeProducts: number;
+      inactiveProducts: number;
+      averagePrice: number;
+      priceRange: {
+        min: number;
+        max: number;
+      };
+    };
+  };
+}
+
 // Koi fish types
 export interface KoiFish extends BaseEntity {
   name: string;
