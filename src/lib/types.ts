@@ -58,6 +58,13 @@ export interface AuctionMedia {
   mediaType?: "image" | "video"; // Optional, will be determined from file extension
 }
 
+// Backend Gallery Media
+export interface GalleryMedia {
+  fileUrl: string;
+  _id: string;
+  mediaType?: "image" | "video"; // Optional, will be determined from file extension
+}
+
 // Media type helper
 export type MediaType = "image" | "video";
 
@@ -102,6 +109,46 @@ export interface AuctionApiResponse {
       totalPages: number;
       hasNextPage: boolean;
       hasPreviousPage: boolean;
+    };
+  };
+}
+
+// Backend Gallery (from your API response)
+export interface BackendGallery {
+  _id: string;
+  galleryName: string;
+  owner: string;
+  handling: string;
+  isActive: boolean;
+  media: GalleryMedia[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+// Backend Gallery API Response Structure
+export interface GalleryApiResponse {
+  status: string;
+  message: string;
+  data: {
+    galleries: BackendGallery[];
+    metadata: {
+      page: number;
+      limit: number;
+      totalItems: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+    statistics: {
+      totalGalleries: number;
+      activeGalleries: number;
+      inactiveGalleries: number;
+      totalMediaFiles: number;
+      galleriesByOwner: Array<{
+        owner: string;
+        count: number;
+      }>;
     };
   };
 }

@@ -4,7 +4,7 @@ import { ArrowRight } from "react-feather";
 import { FishIcon, PeopleIcon, TrophyIcon } from "../components/icons/landingPage";
 import AuctionSectionServer from "../components/sections/AuctionSectionServer";
 import AuthRequiredSection from "../components/sections/AuthRequiredSection";
-import MomentsSection from "../components/sections/MomentsSection";
+import GallerySection from "../components/sections/GallerySection";
 import ProductsSection from "../components/sections/ProductsSection";
 import Footer from "../components/layout/public/Footer";
 import ClientAuthWrapper from "../components/ClientAuthWrapper";
@@ -90,7 +90,7 @@ export default function Home() {
       <ClientAuthWrapper />
 
       {/* Moments Section */}
-      <MomentsSection />
+      <GallerySection />
 
       {/* Products Section */}
       <ProductsSection />
