@@ -5,6 +5,7 @@ import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, XCircle } from "react-feather";
 import { formatCurrency } from "@/lib/utils";
 import { AuctionData } from "@/data/auctions";
+import { getMediaType, isVideoUrl, getFallbackMedia } from "@/services/auctionService";
 
 interface BidModalProps {
   isOpen: boolean;
@@ -15,12 +16,14 @@ interface BidModalProps {
 export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [bidAmount, setBidAmount] = useState("");
+  const [mediaError, setMediaError] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && auction) {
       setBidAmount((auction.highestBid + 50000).toString());
       setCurrentImageIndex(0);
+      setMediaError(false); // Reset media error when opening modal
     }
   }, [isOpen, auction]);
 
@@ -49,12 +52,14 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
   const nextImage = () => {
     if (auction && currentImageIndex < auction.images.length - 1) {
       setCurrentImageIndex(currentImageIndex + 1);
+      setMediaError(false); // Reset error when changing media
     }
   };
 
   const prevImage = () => {
     if (currentImageIndex > 0) {
       setCurrentImageIndex(currentImageIndex - 1);
+      setMediaError(false); // Reset error when changing media
     }
   };
 
@@ -76,6 +81,48 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
     setBidAmount(value);
   };
 
+  const renderCurrentMedia = () => {
+    if (!auction || !auction.images || auction.images.length === 0) {
+      return <Image src="/images/koi/contoh_ikan.png" alt={auction?.title || "Auction item"} fill className="object-cover" />;
+    }
+
+    const currentMediaUrl = auction.images[currentImageIndex];
+    const isVideo = isVideoUrl(currentMediaUrl);
+
+    // If media error, always show fallback image
+    if (mediaError) {
+      return <Image src="/images/koi/contoh_ikan.png" alt={auction.title} fill className="object-cover" />;
+    }
+
+    if (isVideo) {
+      return (
+        <video
+          src={currentMediaUrl}
+          className="w-full h-full object-cover"
+          controls={true}
+          muted
+          onError={() => {
+            console.warn(`Video failed to load: ${currentMediaUrl}`);
+            setMediaError(true);
+          }}
+        />
+      );
+    } else {
+      return (
+        <Image
+          src={currentMediaUrl}
+          alt={`${auction.title} - Media ${currentImageIndex + 1}`}
+          fill
+          className="object-cover"
+          onError={() => {
+            console.warn(`Image failed to load: ${currentMediaUrl}`);
+            setMediaError(true);
+          }}
+        />
+      );
+    }
+  };
+
   if (!isOpen || !auction) return null;
 
   return (
@@ -93,10 +140,10 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
         <div className="p-6 space-y-6">
           <p className="text-gray-600 text-md">Silakan masukkan nominal BID</p>
 
-          {/* Image Carousel */}
+          {/* Media Carousel */}
           <div className="relative">
             <div className="relative h-64 rounded-lg overflow-hidden">
-              <Image src={auction.images[0] || "/images/placeholder-koi.jpg"} alt={`${auction.title} - Image ${currentImageIndex + 1}`} fill className="object-cover" />
+              {renderCurrentMedia()}
 
               {/* Navigation Arrows */}
               {auction.images.length > 1 && (
@@ -104,14 +151,14 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
                   <button
                     onClick={prevImage}
                     disabled={currentImageIndex === 0}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed z-10"
                   >
                     <ChevronLeft size={16} />
                   </button>
                   <button
                     onClick={nextImage}
                     disabled={currentImageIndex === auction.images.length - 1}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed z-10"
                   >
                     <ChevronRight size={16} />
                   </button>
@@ -119,11 +166,18 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
               )}
             </div>
 
-            {/* Image Indicators */}
+            {/* Media Indicators */}
             {auction.images.length > 1 && (
               <div className="flex justify-center mt-3 space-x-2">
                 {auction.images.map((_, index) => (
-                  <button key={index} onClick={() => setCurrentImageIndex(index)} className={`w-2 h-2 rounded-full transition duration-500 ${index === currentImageIndex ? "bg-primary w-6" : "bg-gray-300"}`} />
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setCurrentImageIndex(index);
+                      setMediaError(false); // Reset error when changing media
+                    }}
+                    className={`w-2 h-2 rounded-full transition duration-500 ${index === currentImageIndex ? "bg-primary w-6" : "bg-gray-300"}`}
+                  />
                 ))}
               </div>
             )}

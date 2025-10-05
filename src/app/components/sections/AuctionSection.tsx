@@ -4,13 +4,14 @@ import { useState } from "react";
 import AuctionCard from "../common/AuctionCard";
 import BidModal from "../common/BidModal";
 import { mockAuctionData, auctionSection, AuctionData } from "@/data/auctions";
+import { BackendAuction } from "@/lib/types";
 
 export default function AuctionSection() {
   const [selectedAuction, setSelectedAuction] = useState<AuctionData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleBidClick = (auction: AuctionData) => {
-    setSelectedAuction(auction);
+  const handleBidClick = (auction: AuctionData | BackendAuction) => {
+    setSelectedAuction(auction as AuctionData);
     setIsModalOpen(true);
   };
 

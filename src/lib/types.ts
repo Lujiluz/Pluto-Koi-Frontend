@@ -33,6 +33,14 @@ export interface AuthResponse {
   error?: string;
 }
 
+// Backend User types (from your API)
+export interface BackendUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 // User types
 export interface User extends BaseEntity {
   name: string;
@@ -41,6 +49,61 @@ export interface User extends BaseEntity {
   avatar?: string;
   role: UserRole;
   isActive: boolean;
+}
+
+// Backend Auction Media
+export interface AuctionMedia {
+  fileUrl: string;
+  _id: string;
+  mediaType?: "image" | "video"; // Optional, will be determined from file extension
+}
+
+// Media type helper
+export type MediaType = "image" | "video";
+
+// Backend Auction Winner/Bidder
+export interface AuctionBid {
+  userId: BackendUser;
+  bidAmount: number;
+}
+
+// Backend Auction (from your API response)
+export interface BackendAuction {
+  _id: string;
+  itemName: string;
+  startPrice: number;
+  endPrice: number;
+  startDate: string;
+  endDate: string;
+  highestBid: number;
+  media: AuctionMedia[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  currentHighestBid: number | null;
+  currentWinner: AuctionBid | null;
+}
+
+// Backend API Response Structure
+export interface AuctionApiResponse {
+  status: string;
+  message: string;
+  data: {
+    statistics: {
+      totalAuctions: number;
+      activeAuctions: number;
+      completedAuctions: number;
+    };
+    auctions: BackendAuction[];
+    metadata: {
+      page: number;
+      limit: number;
+      totalItems: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  };
 }
 
 // Koi fish types

@@ -3,8 +3,8 @@ import { AuthResponse, LoginRequest, RegisterRequest, UserRole } from "@/lib/typ
 
 // Base API URLs
 const AUTH_ENDPOINTS = {
-  LOGIN: "/api/pluto-koi/v1/auth/login",
-  REGISTER: "/api/pluto-koi/v1/auth/register",
+  LOGIN: "/auth/login",
+  REGISTER: "/auth/register",
 } as const;
 
 // Login service

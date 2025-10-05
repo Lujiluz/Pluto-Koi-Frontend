@@ -1,18 +1,15 @@
-"use client";
-
 import Image from "next/image";
 import LiquidGlassContainer from "../components/ui/LiquidGlassContainer";
 import { ArrowRight } from "react-feather";
 import { FishIcon, PeopleIcon, TrophyIcon } from "../components/icons/landingPage";
-import AuctionSection from "../components/sections/AuctionSection";
+import AuctionSectionServer from "../components/sections/AuctionSectionServer";
 import AuthRequiredSection from "../components/sections/AuthRequiredSection";
 import MomentsSection from "../components/sections/MomentsSection";
 import ProductsSection from "../components/sections/ProductsSection";
 import Footer from "../components/layout/public/Footer";
-import { useAuth } from "@/hooks/useAuth";
+import ClientAuthWrapper from "../components/ClientAuthWrapper";
 
 export default function Home() {
-  const { isAuthenticated, isLoading } = useAuth();
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -90,7 +87,7 @@ export default function Home() {
       </section>
 
       {/* Auction Section - Only show for authenticated users */}
-      {!isLoading && (isAuthenticated ? <AuctionSection /> : <AuthRequiredSection />)}
+      <ClientAuthWrapper />
 
       {/* Moments Section */}
       <MomentsSection />
