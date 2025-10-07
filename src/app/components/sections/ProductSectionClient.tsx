@@ -5,7 +5,6 @@ import { useProducts, useRefreshProducts } from "@/hooks/useProducts";
 import { ProductQueryParams } from "@/services/productService";
 import ProductCard from "../common/ProductCard";
 import { RefreshCw, AlertCircle } from "react-feather";
-import { productsSection } from "@/app/data/products";
 
 export default function ProductSectionClient() {
   const [queryParams, setQueryParams] = useState<ProductQueryParams>({
@@ -73,7 +72,7 @@ export default function ProductSectionClient() {
             </h2>
           </div>
           <div className="flex items-start">
-            <p className="text-responsive-base text-gray-800 leading-relaxed max-w-2xl">{productsSection.subtitle}</p>
+            <p className="text-responsive-base text-gray-800 leading-relaxed max-w-2xl">Temukan berbagai alat memancing berkualitas dan ikan segar siap dibeli. Jelajahi koleksi kami, pilih yang kamu butuhkan.</p>
           </div>
         </div>
 

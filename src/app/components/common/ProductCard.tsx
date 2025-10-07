@@ -2,19 +2,18 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ProductData } from "@/app/data/products";
 import { BackendProduct } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 import { formatProductPrice, getPreviewMediaUrl } from "@/services/productService";
 import { isVideoUrl } from "@/services/auctionService";
 
 interface ProductCardProps {
-  product: ProductData | BackendProduct;
+  product: BackendProduct;
   className?: string;
 }
 
 // Type guard to check if product is from backend
-const isBackendProduct = (product: ProductData | BackendProduct): product is BackendProduct => {
+const isBackendProduct = (product: BackendProduct): product is BackendProduct => {
   return "_id" in product;
 };
 
@@ -22,21 +21,13 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
   const [mediaError, setMediaError] = useState(false);
 
   // Normalize product data based on type
-  const normalizedProduct = isBackendProduct(product)
-    ? {
-        id: product._id,
-        name: product.productName,
-        price: product.productPrice,
-        image: getPreviewMediaUrl(product),
-        isVideo: product.media && product.media.length > 0 ? isVideoUrl(product.media[0].fileUrl) : false,
-      }
-    : {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        isVideo: false,
-      };
+  const normalizedProduct = {
+    id: product._id,
+    name: product.productName,
+    price: product.productPrice,
+    image: getPreviewMediaUrl(product),
+    isVideo: product.media && product.media.length > 0 ? isVideoUrl(product.media[0].fileUrl) : false,
+  };
 
   const handleBuyClick = () => {
     // No action on click as requested
