@@ -111,34 +111,47 @@ export default function Header() {
         </div>
 
         {/* Mobile Menu */}
-        <div className={cn("bg-white lg:hidden transition-all duration-300 ease-in-out overflow-hidden", isMobileMenuOpen ? "max-h-96 pb-4" : "max-h-0")}>
-          <nav className="flex flex-col space-y-2 pt-4">
+        <div className={cn("bg-gradient-to-b from-gray-50 to-white lg:hidden transition-all duration-300 ease-in-out overflow-hidden border-t border-gray-100", isMobileMenuOpen ? "max-h-[500px] pb-6" : "max-h-0")}>
+          <nav className="flex flex-col space-y-1 pt-4 px-4">
             {NAVIGATION.main.map((item) => (
-              <Link key={item.href} href={item.href} className="nav-link py-2 px-6 rounded-lg transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link key={item.href} href={item.href} className="nav-link py-3 px-4 rounded-lg transition-all duration-200 hover:bg-primary-50 hover:text-primary-600 text-gray-700 font-medium" onClick={() => setIsMobileMenuOpen(false)}>
                 {item.label}
               </Link>
             ))}
-            <div className="flex flex-col space-y-2 pt-4">
+
+            {/* Authentication Section */}
+            <div className="pt-4 mt-4 border-t border-gray-200">
               {isAuthenticated ? (
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center space-x-2 px-6 py-2 text-gray-700">
-                    <User size={18} />
-                    <span className="font-medium">{user?.name}</span>
+                <div className="space-y-3">
+                  {/* User Info */}
+                  <div className="flex items-center space-x-3 px-4 py-2 bg-gray-100 rounded-lg">
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                      <User size={16} className="text-white" />
+                    </div>
+                    <span className="font-medium text-gray-700 text-sm">{user?.name}</span>
                   </div>
-                  <button onClick={handleLogout} className="flex items-center justify-center space-x-2 btn-outline py-2 text-center">
+
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center space-x-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm"
+                  >
                     <LogOut size={16} />
                     <span>Keluar</span>
                   </button>
                 </div>
               ) : (
-                <>
-                  <button onClick={openRegisterModal} className="btn-outline py-2 text-center">
+                <div className="space-y-3">
+                  {/* Register Button */}
+                  <button onClick={openRegisterModal} className="w-full bg-white border border-primary text-primary hover:bg-primary hover:text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm">
                     Daftar
                   </button>
-                  <button onClick={openLoginModal} className="btn-primary hover:bg-gray-100 font-medium py-2 rounded-lg transition-colors text-center">
+
+                  {/* Login Button */}
+                  <button onClick={openLoginModal} className="w-full bg-primary text-white hover:bg-primary-600 font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm">
                     Masuk
                   </button>
-                </>
+                </div>
               )}
             </div>
           </nav>
