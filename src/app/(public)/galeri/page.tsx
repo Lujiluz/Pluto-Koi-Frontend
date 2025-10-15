@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import { getGalleriesServer } from "@/services/galleryService";
 import { GalleryApiResponse } from "@/lib/types";
 import GalleryPageClient from "@/app/components/pages/GalleryPageClient";
@@ -26,7 +27,11 @@ export default async function GalleryPage() {
     // Continue without initial data - client will handle loading
   }
 
-  return <GalleryPageClient initialData={initialData} />;
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+      <GalleryPageClient initialData={initialData} />
+    </Suspense>
+  );
 }
 
 // Enable static generation with revalidation
