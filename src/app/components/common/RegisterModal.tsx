@@ -84,7 +84,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
 
       console.log("response: ", response);
 
-      if (response.success) {
+      if (response.status === "success") {
         // Registration successful
         console.log("Registration successful:", response.data);
 

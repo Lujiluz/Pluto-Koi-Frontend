@@ -70,7 +70,9 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSucc
         password: formData.password,
       });
 
-      if (response.success) {
+      console.log("Login response received:", response);
+
+      if (response.status === "success") {
         // Login successful
         console.log("Login successful:", response.data);
 
@@ -82,10 +84,17 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSucc
         });
         setErrors({});
 
+        // Call success callback first to refresh auth state
+        if (onSuccess) {
+          console.log("Calling onSuccess callback to refresh auth state");
+          onSuccess();
+        }
+
+        // Then close modal
         onClose();
-        onSuccess?.(); // Call success callback to refresh auth state
       } else {
         // Login failed
+        console.log("Login failed:", response.error);
         setErrors({
           general: response.error || "Login failed. Please try again.",
         });
