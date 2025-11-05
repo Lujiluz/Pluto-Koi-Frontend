@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SITE_CONFIG } from "@/lib/constants";
 import LiquidGlassSvgFilter from "./components/icons/SvgFilters";
+import TopProgressBar from "./components/common/TopProgressBar";
 
 export const metadata: Metadata = {
   title: SITE_CONFIG.name,
@@ -17,8 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-  <html lang="en" className="scroll-smooth translated-ltr">
+    <html lang="en" className="scroll-smooth translated-ltr">
       <body className="font-sans antialiased">
+        <TopProgressBar />
         <LiquidGlassSvgFilter />
         {children}
       </body>

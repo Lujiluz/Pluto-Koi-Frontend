@@ -1,13 +1,10 @@
 import Image from "next/image";
 import LiquidGlassContainer from "../components/ui/LiquidGlassContainer";
-import { ArrowRight } from "react-feather";
+import { ArrowRight, ShoppingBag, Zap } from "react-feather";
 import { FishIcon, PeopleIcon, TrophyIcon } from "../components/icons/landingPage";
-import AuctionSectionServer from "../components/sections/AuctionSectionServer";
-import AuthRequiredSection from "../components/sections/AuthRequiredSection";
 import GallerySection from "../components/sections/GallerySection";
 import ProductsSection from "../components/sections/ProductsSection";
 import Footer from "../components/layout/public/Footer";
-import ClientAuthWrapper from "../components/ClientAuthWrapper";
 import Link from "next/link";
 
 export default function Home() {
@@ -35,7 +32,41 @@ export default function Home() {
                   <span className="sm:hidden"> </span>& Belanja Ikan Favoritmu!
                 </h1>
                 <p className="text-sm sm:text-base lg:text-lg opacity-90 mb-6 sm:mb-8 leading-relaxed">Ikut bid, belanja alat, atau lihat galeri hasil lelang kami.</p>
-                <Link href="#lelang" className="btn-primary inline-flex items-center gap-2 text-sm sm:text-base">
+
+                {/* Quick Action Buttons Banner */}
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
+                  <Link href="/lelang" className="group flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-lg p-4 sm:p-5 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Zap size={20} className="sm:w-6 sm:h-6 text-white" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="text-sm sm:text-base font-semibold text-white">Lelang Ikan</h3>
+                          <p className="text-xs sm:text-sm text-white/80">Mulai bid sekarang</p>
+                        </div>
+                      </div>
+                      <ArrowRight size={18} className="text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </Link>
+
+                  <Link href="/belanja" className="group flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-lg p-4 sm:p-5 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <ShoppingBag size={20} className="sm:w-6 sm:h-6 text-white" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="text-sm sm:text-base font-semibold text-white">Belanja Produk</h3>
+                          <p className="text-xs sm:text-sm text-white/80">Alat & ikan segar</p>
+                        </div>
+                      </div>
+                      <ArrowRight size={18} className="text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </Link>
+                </div>
+
+                <Link href="/lelang" className="btn-primary inline-flex items-center gap-2 text-sm sm:text-base">
                   Mulai Ikut Lelang
                   <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px]" />
                 </Link>
@@ -89,9 +120,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Auction Section - Only show for authenticated users */}
-      <ClientAuthWrapper />
 
       {/* Moments Section */}
       <GallerySection />

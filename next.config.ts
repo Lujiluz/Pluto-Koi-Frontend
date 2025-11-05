@@ -5,10 +5,15 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "http", // Or 'https' if your local server uses HTTPS
+        protocol: "http", // HTTP for localhost development
         hostname: "localhost",
-        port: "1728", // e.g., '3000', '8000', etc.
-        pathname: "/media/**", // e.g., '/images/**', '/api/images/**'
+        port: "1728", // Your backend port
+        pathname: "/media/**",
+      },
+      {
+        protocol: "https",
+        hostname: "pluto-koi-backend.onrender.com",
+        pathname: "/media/**",
       },
       // Add other remote patterns for external image sources if needed
     ],

@@ -91,6 +91,20 @@ export interface BackendAuction {
   currentWinner: AuctionBid | null;
 }
 
+// Backend Auction Detail (from detail endpoint)
+export interface BackendAuctionDetail extends BackendAuction {
+  note: string; // HTML content with auction details
+  endTime: string; // Specific end time
+  extraTime: number; // Extra time in minutes
+}
+
+// Backend Auction Detail API Response
+export interface AuctionDetailApiResponse {
+  status: string;
+  message: string;
+  data: BackendAuctionDetail;
+}
+
 // Backend API Response Structure
 export interface AuctionApiResponse {
   status: string;

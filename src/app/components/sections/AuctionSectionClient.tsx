@@ -1,55 +1,55 @@
 "use client";
 
-import { useState } from "react";
-import { AuctionApiResponse, BackendAuction } from "@/lib/types";
-import { AuctionData } from "@/data/auctions";
-import { useAuctions, useRefreshAuctions } from "@/hooks/useAuctions";
+import { useState, useRef, useEffect } from "react";
+import { AuctionApiResponse } from "@/lib/types";
+import { useInfiniteAuctions, useRefreshAuctions } from "@/hooks/useAuctions";
 import AuctionCard from "../common/AuctionCard";
-import BidModal from "../common/BidModal";
 
 interface AuctionSectionClientProps {
   initialData?: AuctionApiResponse;
 }
 
 export default function AuctionSectionClient({ initialData }: AuctionSectionClientProps) {
-  const [selectedAuction, setSelectedAuction] = useState<BackendAuction | AuctionData | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  // Use TanStack Query for data fetching
-  const { data: auctionData, isLoading, error, isError, refetch } = useAuctions();
+  // Use TanStack Query infinite scroll for data fetching
+  const { data, isLoading, error, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteAuctions(8);
 
   // Mutation for manual refresh
   const refreshAuctions = useRefreshAuctions();
 
-  const handleBidClick = (auction: BackendAuction | AuctionData) => {
-    setSelectedAuction(auction);
-    setIsModalOpen(true);
-  };
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return;
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setSelectedAuction(null);
-  };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = loadMoreRef.current;
+    observer.observe(currentRef);
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleRefresh = () => {
     refreshAuctions.mutate();
   };
 
-  // Convert BackendAuction to AuctionData format for BidModal compatibility
-  const convertedAuction =
-    selectedAuction && "_id" in selectedAuction
-      ? ({
-          id: selectedAuction._id,
-          title: selectedAuction.itemName,
-          images: selectedAuction.media.map((media) => media.fileUrl),
-          currentPrice: selectedAuction.currentHighestBid || selectedAuction.startPrice,
-          startingPrice: selectedAuction.startPrice,
-          highestBid: selectedAuction.currentHighestBid || 0,
-          bidCount: selectedAuction.currentWinner ? 1 : 0,
-          endTime: selectedAuction.endDate,
-          status: "active" as const,
-        } as AuctionData)
-      : (selectedAuction as AuctionData);
+  // Flatten all pages of auctions
+  const allAuctions = data?.pages.flatMap((page) => (page.status === "success" ? page.data.auctions : [])) || [];
+
+  // Get statistics from the first page
+  const statistics = data?.pages[0]?.status === "success" ? data.pages[0].data.statistics : null;
 
   if (isLoading) {
     return (
@@ -90,7 +90,7 @@ export default function AuctionSectionClient({ initialData }: AuctionSectionClie
     );
   }
 
-  if (!auctionData || auctionData.status !== "success") {
+  if (!data || allAuctions.length === 0) {
     return (
       <section className="section-padding bg-white mx-8" id="lelang">
         <div className="container-custom">
@@ -108,8 +108,6 @@ export default function AuctionSectionClient({ initialData }: AuctionSectionClie
     );
   }
 
-  const { auctions, statistics } = auctionData.data;
-
   return (
     <>
       <section className="section-padding bg-white mx-8" id="lelang">
@@ -121,37 +119,50 @@ export default function AuctionSectionClient({ initialData }: AuctionSectionClie
             </h2>
             <div className="flex flex-col space-y-2">
               <p className="text-responsive-base text-gray-800 leading-relaxed max-w-2xl">Ikuti lelang real-time dan menangkan ikan koi impian Anda!</p>
-              <div className="flex gap-4 text-sm text-gray-600 items-center">
-                <span>Total Lelang: {statistics.totalAuctions}</span>
-                <span>Aktif: {statistics.activeAuctions}</span>
-                <span>Selesai: {statistics.completedAuctions}</span>
-                <button onClick={handleRefresh} disabled={refreshAuctions.isPending} className="text-primary hover:text-primary/80 font-medium transition-colors text-xs" title="Segarkan data lelang">
-                  {refreshAuctions.isPending ? "⟳ Menyegarkan..." : "⟳ Segarkan"}
-                </button>
-              </div>
+              {statistics && (
+                <div className="flex gap-4 text-sm text-gray-600 items-center">
+                  <span>Total Lelang: {statistics.totalAuctions}</span>
+                  <span>Aktif: {statistics.activeAuctions}</span>
+                  <span>Selesai: {statistics.completedAuctions}</span>
+                  <button onClick={handleRefresh} disabled={refreshAuctions.isPending} className="text-primary hover:text-primary/80 font-medium transition-colors text-xs" title="Segarkan data lelang">
+                    {refreshAuctions.isPending ? "⟳ Menyegarkan..." : "⟳ Segarkan"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Auction Grid */}
-          {auctions.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {auctions.map((auction) => (
-                <AuctionCard key={auction._id} auction={auction} onBidClick={handleBidClick} />
-              ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {allAuctions.map((auction) => (
+              <AuctionCard key={auction._id} auction={auction} />
+            ))}
+          </div>
+
+          {/* Load More Trigger */}
+          {hasNextPage && (
+            <div ref={loadMoreRef} className="flex justify-center items-center py-8">
+              {isFetchingNextPage ? (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <p className="text-gray-600 text-sm">Memuat lebih banyak...</p>
+                </div>
+              ) : (
+                <button onClick={() => fetchNextPage()} className="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg transition-colors">
+                  Muat Lebih Banyak
+                </button>
+              )}
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-600">Tidak ada lelang yang tersedia saat ini.</p>
-              <button onClick={handleRefresh} disabled={refreshAuctions.isPending} className="mt-4 bg-primary hover:bg-primary/90 disabled:bg-primary/70 text-white px-6 py-2 rounded-lg transition-colors">
-                {refreshAuctions.isPending ? "Menyegarkan..." : "Segarkan Data"}
-              </button>
+          )}
+
+          {/* End of List Message */}
+          {!hasNextPage && allAuctions.length > 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500 text-sm">Anda telah melihat semua lelang yang tersedia</p>
             </div>
           )}
         </div>
       </section>
-
-      {/* Bid Modal */}
-      <BidModal isOpen={isModalOpen} onClose={handleModalClose} auction={convertedAuction} />
     </>
   );
 }

@@ -107,7 +107,7 @@ export const NAVIGATION = {
   main: [
     { label: "Beranda", href: "/#beranda" },
     { label: "Fitur", href: "/#fitur" },
-    { label: "Lelang", href: "/#lelang" },
+    { label: "Lelang", href: "/lelang" },
     { label: "Galeri", href: "/#galeri" },
     { label: "Belanja", href: "/#belanja" },
   ],

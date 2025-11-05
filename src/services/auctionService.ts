@@ -1,15 +1,55 @@
 import AxiosInstance from "@/utils/axiosInstance";
-import { AuctionApiResponse, MediaType } from "@/lib/types";
+import { AuctionApiResponse, AuctionDetailApiResponse, MediaType } from "@/lib/types";
+
+// Auction participants response type
+export interface AuctionParticipantsResponse {
+  status: string;
+  message: string;
+  data: {
+    auctionId: string;
+    participants: Array<{
+      userId: string;
+      name: string;
+      email: string;
+      role: string;
+      totalBids: number;
+      highestBid: number;
+      latestBidTime: string;
+      isHighestBidder: boolean;
+    }>;
+    currentHighestBid: number;
+    currentWinner: {
+      userId: string;
+      name: string;
+      bidAmount: number;
+    } | null;
+    totalParticipants: number;
+    totalBids: number;
+  };
+}
 
 // Base auction API endpoints
 const AUCTION_ENDPOINTS = {
   GET_ALL: "/auction",
+  GET_DETAIL: (id: string) => `/auction/${id}`,
+  GET_PARTICIPANTS: (id: string) => `/auction-activity/auction/${id}/participants`,
 } as const;
 
+// Pagination params interface
+export interface AuctionPaginationParams {
+  page?: number;
+  limit?: number;
+}
+
 // Client-side auction service (using axios with auth)
-export const getAuctionsClient = async (): Promise<AuctionApiResponse> => {
+export const getAuctionsClient = async (params?: AuctionPaginationParams): Promise<AuctionApiResponse> => {
   try {
-    const response = await AxiosInstance.get(AUCTION_ENDPOINTS.GET_ALL);
+    const response = await AxiosInstance.get(AUCTION_ENDPOINTS.GET_ALL, {
+      params: {
+        page: params?.page || 1,
+        limit: params?.limit || 8,
+      },
+    });
     return response.data;
   } catch (error: any) {
     console.error("Error fetching auctions:", error);
@@ -18,10 +58,12 @@ export const getAuctionsClient = async (): Promise<AuctionApiResponse> => {
 };
 
 // Server-side auction service (for server components)
-export const getAuctionsServer = async (): Promise<AuctionApiResponse> => {
+export const getAuctionsServer = async (params?: AuctionPaginationParams): Promise<AuctionApiResponse> => {
   try {
     const baseUrl = process.env.BACKEND_BASE_URL || "http://localhost:1728";
-    const response = await fetch(`${baseUrl}${AUCTION_ENDPOINTS.GET_ALL}`, {
+    const page = params?.page || 1;
+    const limit = params?.limit || 8;
+    const response = await fetch(`${baseUrl}${AUCTION_ENDPOINTS.GET_ALL}?page=${page}&limit=${limit}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -39,6 +81,52 @@ export const getAuctionsServer = async (): Promise<AuctionApiResponse> => {
   } catch (error) {
     console.error("Error fetching auctions on server:", error);
     throw error;
+  }
+};
+
+// Client-side auction detail service
+export const getAuctionDetailClient = async (id: string): Promise<AuctionDetailApiResponse> => {
+  try {
+    const response = await AxiosInstance.get(AUCTION_ENDPOINTS.GET_DETAIL(id));
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching auction detail:", error);
+    throw new Error(error.response?.data?.message || "Failed to fetch auction detail");
+  }
+};
+
+// Server-side auction detail service (for server components)
+export const getAuctionDetailServer = async (id: string): Promise<AuctionDetailApiResponse> => {
+  try {
+    const baseUrl = process.env.BACKEND_BASE_URL || "http://localhost:1728";
+    const response = await fetch(`${baseUrl}${AUCTION_ENDPOINTS.GET_DETAIL(id)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: { revalidate: 30 }, // Revalidate every 30 seconds for detail page
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data: AuctionDetailApiResponse = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching auction detail on server:", error);
+    throw error;
+  }
+};
+
+// Client-side auction participants service
+export const getAuctionParticipantsClient = async (id: string): Promise<AuctionParticipantsResponse> => {
+  try {
+    const response = await AxiosInstance.get(AUCTION_ENDPOINTS.GET_PARTICIPANTS(id));
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching auction participants:", error);
+    throw new Error(error.response?.data?.message || "Failed to fetch auction participants");
   }
 };
 

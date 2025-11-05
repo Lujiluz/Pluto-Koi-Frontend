@@ -1,12 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAuctionsClient } from "@/services/auctionService";
-import { AuctionApiResponse } from "@/lib/types";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import { getAuctionsClient, getAuctionDetailClient } from "@/services/auctionService";
+import { AuctionApiResponse, AuctionDetailApiResponse } from "@/lib/types";
 
 // Query keys for auctions
 export const AUCTION_QUERY_KEYS = {
   all: ["auctions"] as const,
   lists: () => [...AUCTION_QUERY_KEYS.all, "list"] as const,
   list: (filters: Record<string, any>) => [...AUCTION_QUERY_KEYS.lists(), { filters }] as const,
+  infinite: () => [...AUCTION_QUERY_KEYS.all, "infinite"] as const,
   details: () => [...AUCTION_QUERY_KEYS.all, "detail"] as const,
   detail: (id: string) => [...AUCTION_QUERY_KEYS.details(), id] as const,
 };
@@ -15,7 +16,7 @@ export const AUCTION_QUERY_KEYS = {
 export const useAuctions = () => {
   return useQuery({
     queryKey: AUCTION_QUERY_KEYS.lists(),
-    queryFn: getAuctionsClient,
+    queryFn: () => getAuctionsClient(),
     staleTime: 30 * 1000, // 30 seconds - auctions change frequently
     gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true, // Refetch when user comes back to the app
@@ -27,6 +28,48 @@ export const useAuctions = () => {
       }
       return failureCount < 2;
     },
+  });
+};
+
+// Hook for infinite scroll auctions
+export const useInfiniteAuctions = (initialLimit: number = 8) => {
+  return useInfiniteQuery({
+    queryKey: AUCTION_QUERY_KEYS.infinite(),
+    queryFn: ({ pageParam = 1 }) => getAuctionsClient({ page: pageParam, limit: initialLimit }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage || lastPage.status !== "success") return undefined;
+      const { metadata } = lastPage.data;
+      return metadata.hasNextPage ? metadata.page + 1 : undefined;
+    },
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+};
+
+// Hook to fetch auction detail by ID
+export const useAuctionDetail = (id: string) => {
+  return useQuery({
+    queryKey: AUCTION_QUERY_KEYS.detail(id),
+    queryFn: () => getAuctionDetailClient(id),
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true,
+    refetchInterval: 60 * 1000, // Refetch every minute for real-time updates
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    enabled: !!id, // Only run query if id is provided
   });
 };
 

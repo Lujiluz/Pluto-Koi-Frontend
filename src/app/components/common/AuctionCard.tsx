@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { formatCurrency, getTimeRemaining } from "@/lib/utils";
 import { AuctionData } from "@/data/auctions";
 import { BackendAuction } from "@/lib/types";
@@ -9,7 +10,6 @@ import { getAuctionStatus, formatPrice, getTimeRemaining as getTimeRemainingFrom
 
 interface AuctionCardProps {
   auction: AuctionData | BackendAuction;
-  onBidClick: (auction: AuctionData | BackendAuction) => void;
 }
 
 // Type guard to check if auction is from backend
@@ -17,7 +17,7 @@ const isBackendAuction = (auction: AuctionData | BackendAuction): auction is Bac
   return "_id" in auction;
 };
 
-export default function AuctionCard({ auction, onBidClick }: AuctionCardProps) {
+export default function AuctionCard({ auction }: AuctionCardProps) {
   const [mediaError, setMediaError] = useState(false);
 
   // Normalize auction data based on type
@@ -173,15 +173,9 @@ export default function AuctionCard({ auction, onBidClick }: AuctionCardProps) {
         </div>
 
         {/* Action Button */}
-        <button
-          onClick={() => onBidClick(auction)}
-          disabled={isAuctionEnded}
-          className={`w-full py-3 px-4 rounded-lg cursor-pointer font-medium text-sm transition-colors ${
-            isAuctionEnded ? "bg-gray-400 text-white cursor-not-allowed" : normalizedAuction.status === "ending-soon" ? "bg-green-500 hover:bg-green-600 text-white" : "bg-primary hover:bg-primary-600 text-white"
-          }`}
-        >
-          {isAuctionEnded ? "Lelang Selesai" : "Ikut BID Sekarang"}
-        </button>
+        <Link href={`/lelang/${normalizedAuction.id}`} className="block w-full py-3 px-4 rounded-lg font-medium text-sm transition-colors text-center bg-primary hover:bg-primary-600 text-white">
+          Detail
+        </Link>
       </div>
     </div>
   );
