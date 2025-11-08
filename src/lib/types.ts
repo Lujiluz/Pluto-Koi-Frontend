@@ -532,6 +532,33 @@ export interface RemoveWishlistRequest {
   itemType: "product" | "auction";
 }
 
+// General Rules types
+export interface GeneralRules {
+  _id: string;
+  content: string;
+}
+
+export interface GeneralRulesApiResponse {
+  status: string;
+  message: string;
+  data: GeneralRules;
+}
+
+// Event types
+export interface ActiveEvent {
+  _id: string;
+  isActive: boolean;
+  totalBidAmount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ActiveEventApiResponse {
+  status: string;
+  message: string;
+  data: ActiveEvent | null;
+}
+
 // Settings types
 export interface UserSettings {
   emailNotifications: boolean;

@@ -1,6 +1,6 @@
+import WishlistPageClient from "@/app/components/pages/WishlistPageClient";
 import { Metadata } from "next";
 import { Suspense } from "react";
-import WishlistPageClient from "@/app/components/pages/WishlistPageClient";
 
 // Metadata for SEO
 export const metadata: Metadata = {

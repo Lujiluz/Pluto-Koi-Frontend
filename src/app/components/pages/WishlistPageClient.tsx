@@ -192,21 +192,8 @@ export default function WishlistPageClient() {
           </div>
         )}
 
-        {/* Error State */}
-        {error && (
-          <div className="text-center py-12">
-            <div className="flex justify-center items-center space-x-3 text-red-500 mb-4">
-              <AlertCircle size={24} />
-              <p>{error}</p>
-            </div>
-            <button onClick={handleRefresh} className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors cursor-pointer">
-              Coba Lagi
-            </button>
-          </div>
-        )}
-
         {/* Empty State */}
-        {displayItems.length === 0 && !error && (
+        {displayItems.length === 0 && (
           <div className="text-center py-12">
             <Heart size={64} className="mx-auto text-gray-300 mb-6" />
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">{activeTab === "all" ? "Wishlist Anda Kosong" : activeTab === "auctions" ? "Tidak Ada Lelang di Wishlist" : "Tidak Ada Produk di Wishlist"}</h2>

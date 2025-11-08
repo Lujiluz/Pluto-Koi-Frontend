@@ -559,3 +559,19 @@ main {
   font-style: italic;
   color: var(--color-gray-600);
 }
+
+/* Toast animations */
+@keyframes slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}

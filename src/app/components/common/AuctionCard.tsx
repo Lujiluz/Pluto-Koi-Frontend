@@ -107,12 +107,6 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
   const isWishlistLoading = isAddingToWishlist || isRemovingFromWishlist;
 
   const handleWishlistToggle = async () => {
-    if (!isAuthenticated) {
-      // You might want to show a login modal here instead
-      alert("Please login to add items to your wishlist");
-      return;
-    }
-
     try {
       if (itemInWishlist) {
         await removeItemFromWishlist(normalizedAuction.id, "auction");
