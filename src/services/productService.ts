@@ -11,9 +11,9 @@ export interface ProductQueryParams {
   page?: number;
   limit?: number;
   isActive?: boolean;
-  minPrice?: number;
-  maxPrice?: number;
   search?: string;
+  category?: string;
+  type?: string; // "Produk" or "Koi Store"
 }
 
 // Client-side product service (using axios with auth)
@@ -27,9 +27,9 @@ export const getProductsClient = async (params: ProductQueryParams = {}): Promis
 
     // Add optional filters
     if (params.isActive !== undefined) queryParams.append("isActive", params.isActive.toString());
-    if (params.minPrice !== undefined) queryParams.append("minPrice", params.minPrice.toString());
-    if (params.maxPrice !== undefined) queryParams.append("maxPrice", params.maxPrice.toString());
     if (params.search) queryParams.append("search", params.search);
+    if (params.category) queryParams.append("category", params.category);
+    if (params.type) queryParams.append("type", params.type);
 
     const response = await AxiosInstance.get(`${PRODUCT_ENDPOINTS.GET_ALL}?${queryParams.toString()}`);
     return response.data;
@@ -52,9 +52,9 @@ export const getProductsServer = async (params: ProductQueryParams = {}): Promis
 
     // Add optional filters
     if (params.isActive !== undefined) queryParams.append("isActive", params.isActive.toString());
-    if (params.minPrice !== undefined) queryParams.append("minPrice", params.minPrice.toString());
-    if (params.maxPrice !== undefined) queryParams.append("maxPrice", params.maxPrice.toString());
     if (params.search) queryParams.append("search", params.search);
+    if (params.category) queryParams.append("category", params.category);
+    if (params.type) queryParams.append("type", params.type);
 
     const response = await fetch(`${baseUrl}${PRODUCT_ENDPOINTS.GET_ALL}?${queryParams.toString()}`, {
       method: "GET",

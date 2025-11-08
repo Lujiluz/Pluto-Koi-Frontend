@@ -167,6 +167,45 @@ export interface GalleryApiResponse {
   };
 }
 
+// Backend Product Category
+export interface ProductCategory {
+  _id: string;
+  name: string;
+  description?: string;
+}
+
+// Backend Category (for categories endpoint)
+export interface BackendCategory {
+  _id: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Backend Category API Response Structure
+export interface CategoryApiResponse {
+  status: string;
+  message: string;
+  data: {
+    categories: BackendCategory[];
+    metadata: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+    statistics: {
+      totalCategories: number;
+      activeCategories: number;
+      inactiveCategories: number;
+    };
+  };
+}
+
 // Backend Product Media
 export interface ProductMedia {
   fileUrl: string;
@@ -179,6 +218,8 @@ export interface BackendProduct {
   _id: string;
   productName: string;
   productPrice: number;
+  productType: "Produk" | "Koi Store";
+  productCategory: ProductCategory;
   isActive: boolean;
   media: ProductMedia[];
   createdAt: string;

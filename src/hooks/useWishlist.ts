@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "./useAuth";
-import { getUserWishlist, getWishlistItemsByType, addToWishlist, removeFromWishlist, clearWishlist, isItemInWishlist, getAuctionItemsFromWishlist } from "@/services/wishlistService";
+import { getUserWishlist, getWishlistItemsByType, addToWishlist, removeFromWishlist, clearWishlist, isItemInWishlist, getAuctionItemsFromWishlist, getProductItemsFromWishlist } from "@/services/wishlistService";
 import { WishlistItem, AddWishlistRequest, RemoveWishlistRequest } from "@/lib/types";
 
 interface UseWishlistReturn {
   // Data states
   wishlistItems: WishlistItem[];
   auctionItems: WishlistItem[];
+  productItems: WishlistItem[];
   isLoading: boolean;
   error: string | null;
 
@@ -22,6 +23,7 @@ interface UseWishlistReturn {
   // Actions
   fetchUserWishlist: () => Promise<void>;
   fetchAuctionWishlistItems: () => Promise<void>;
+  fetchProductWishlistItems: () => Promise<void>;
   addItemToWishlist: (itemId: string, itemType: "product" | "auction") => Promise<boolean>;
   removeItemFromWishlist: (itemId: string, itemType: "product" | "auction") => Promise<boolean>;
   clearUserWishlist: () => Promise<boolean>;
@@ -90,6 +92,34 @@ export function useWishlist(): UseWishlistReturn {
     } catch (err: any) {
       console.error("Error fetching auction wishlist items:", err);
       setError(err.message || "Failed to fetch auction wishlist items");
+      setWishlistItems([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch product items from wishlist
+  const fetchProductWishlistItems = async () => {
+    if (!isAuthenticated) {
+      setWishlistItems([]);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await getWishlistItemsByType("product");
+
+      if (response.status === "success" && response.data) {
+        setWishlistItems(response.data);
+      } else {
+        setWishlistItems([]);
+        setError("Failed to fetch product wishlist items");
+      }
+    } catch (err: any) {
+      console.error("Error fetching product wishlist items:", err);
+      setError(err.message || "Failed to fetch product wishlist items");
       setWishlistItems([]);
     } finally {
       setIsLoading(false);
@@ -199,6 +229,7 @@ export function useWishlist(): UseWishlistReturn {
 
   // Computed values
   const auctionItems = getAuctionItemsFromWishlist(wishlistItems);
+  const productItems = getProductItemsFromWishlist(wishlistItems);
 
   // Effect to fetch wishlist when authentication changes
   useEffect(() => {
@@ -214,6 +245,7 @@ export function useWishlist(): UseWishlistReturn {
     // Data states
     wishlistItems,
     auctionItems,
+    productItems,
     isLoading,
     error,
 
@@ -227,6 +259,7 @@ export function useWishlist(): UseWishlistReturn {
     // Actions
     fetchUserWishlist,
     fetchAuctionWishlistItems,
+    fetchProductWishlistItems,
     addItemToWishlist,
     removeItemFromWishlist,
     clearUserWishlist,

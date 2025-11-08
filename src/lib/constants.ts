@@ -109,7 +109,7 @@ export const NAVIGATION = {
     { label: "Fitur", href: "/#fitur" },
     { label: "Lelang", href: "/lelang" },
     { label: "Galeri", href: "/#galeri" },
-    { label: "Belanja", href: "/#belanja" },
+    { label: "Belanja", href: "/belanja" },
   ],
 } as const;
 
