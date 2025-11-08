@@ -7,6 +7,9 @@ import { formatCurrency, getTimeRemaining } from "@/lib/utils";
 import { AuctionData } from "@/data/auctions";
 import { BackendAuction } from "@/lib/types";
 import { getAuctionStatus, formatPrice, getTimeRemaining as getTimeRemainingFromService, getTimeRemainingObject, getMediaType, isVideoUrl, getFallbackMedia } from "@/services/auctionService";
+import { WishlistButton } from "../icons/WishlistIcon";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AuctionCardProps {
   auction: AuctionData | BackendAuction;
@@ -19,6 +22,8 @@ const isBackendAuction = (auction: AuctionData | BackendAuction): auction is Bac
 
 export default function AuctionCard({ auction }: AuctionCardProps) {
   const [mediaError, setMediaError] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const { isInWishlist, addItemToWishlist, removeItemFromWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
 
   // Normalize auction data based on type
   const normalizedAuction = isBackendAuction(auction)
@@ -97,6 +102,28 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
     return isBackendAuction(auction) ? formatPrice(price) : formatCurrency(price);
   };
 
+  // Wishlist functionality
+  const itemInWishlist = isInWishlist(normalizedAuction.id, "auction");
+  const isWishlistLoading = isAddingToWishlist || isRemovingFromWishlist;
+
+  const handleWishlistToggle = async () => {
+    if (!isAuthenticated) {
+      // You might want to show a login modal here instead
+      alert("Please login to add items to your wishlist");
+      return;
+    }
+
+    try {
+      if (itemInWishlist) {
+        await removeItemFromWishlist(normalizedAuction.id, "auction");
+      } else {
+        await addItemToWishlist(normalizedAuction.id, "auction");
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+    }
+  };
+
   const getImageSrc = () => {
     const images = normalizedAuction.images;
     return images && images.length > 0 ? images[0] : "/images/koi/contoh_ikan.png";
@@ -154,6 +181,11 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
       <div className="relative h-48 mb-4">
         {renderMedia()}
         {getStatusBadge()}
+
+        {/* Wishlist Button */}
+        <div className="absolute top-4 right-4">
+          <WishlistButton isInWishlist={itemInWishlist} isLoading={isWishlistLoading} onToggle={handleWishlistToggle} size={20} />
+        </div>
       </div>
 
       {/* Content */}

@@ -449,6 +449,48 @@ export interface Notification extends BaseEntity {
   actionUrl?: string;
 }
 
+// Wishlist types
+export interface WishlistItem {
+  itemId: string;
+  itemType: "product" | "auction";
+  itemData: {
+    itemName: string;
+    price: number;
+    imageUrl: string;
+  };
+  addedAt: string;
+}
+
+export interface Wishlist {
+  _id: string;
+  userId: string;
+  items: WishlistItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WishlistApiResponse {
+  status: string;
+  message: string;
+  data: Wishlist;
+}
+
+export interface WishlistItemsApiResponse {
+  status: string;
+  message: string;
+  data: WishlistItem[];
+}
+
+export interface AddWishlistRequest {
+  itemId: string;
+  itemType: "product" | "auction";
+}
+
+export interface RemoveWishlistRequest {
+  itemId: string;
+  itemType: "product" | "auction";
+}
+
 // Settings types
 export interface UserSettings {
   emailNotifications: boolean;

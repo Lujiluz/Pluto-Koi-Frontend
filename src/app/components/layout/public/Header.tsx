@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { LogOut, User } from "react-feather";
+import { LogOut, User, Heart } from "react-feather";
 import RegisterModal from "../../common/RegisterModal";
 import LoginModal from "../../common/LoginModal";
 import { useAuth } from "@/hooks/useAuth";
@@ -80,6 +80,12 @@ export default function Header() {
             <div className="hidden lg:flex items-center space-x-4">
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
+                  {/* Wishlist Link */}
+                  <Link href="/wishlist" className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors duration-200" title="Wishlist">
+                    <Heart size={18} />
+                    <span className="font-medium">Wishlist</span>
+                  </Link>
+
                   <div className="flex items-center space-x-2 text-white">
                     <User size={18} />
                     <span className="font-medium">{user?.name}</span>
@@ -130,6 +136,16 @@ export default function Header() {
                     </div>
                     <span className="font-medium text-gray-700 text-sm">{user?.name}</span>
                   </div>
+
+                  {/* Wishlist Link */}
+                  <Link
+                    href="/wishlist"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full flex items-center space-x-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm"
+                  >
+                    <Heart size={16} />
+                    <span>Wishlist</span>
+                  </Link>
 
                   {/* Logout Button */}
                   <button
