@@ -65,11 +65,6 @@ export default function Home() {
                     </div>
                   </Link>
                 </div>
-
-                <Link href="/lelang" className="btn-primary inline-flex items-center gap-2 text-sm sm:text-base">
-                  Mulai Ikut Lelang
-                  <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px]" />
-                </Link>
               </LiquidGlassContainer>
             </div>
           </div>
@@ -123,9 +118,6 @@ export default function Home() {
 
       {/* Moments Section */}
       <GallerySection />
-
-      {/* Products Section */}
-      <ProductsSection />
 
       {/* Footer */}
       <Footer />
