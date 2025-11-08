@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { LogOut, User, Heart } from "react-feather";
 import RegisterModal from "../../common/RegisterModal";
 import LoginModal from "../../common/LoginModal";
+import ProgressLink from "../../common/ProgressLink";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
@@ -61,18 +62,18 @@ export default function Header() {
       <div className="container-custom">
         <div className="bg-white flex items-center justify-between h-16 lg:h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 px-8">
+          <ProgressLink href="/" className="flex items-center space-x-2 px-8">
             <Image src="/images/pluto-koi-icon.svg" alt="Logo" width={40} height={40} />
             <span className="font-extralight tracking-[0.2em] text-lg lg:text-xl font-poppins">{SITE_CONFIG.name.toUpperCase()}</span>
-          </Link>
+          </ProgressLink>
 
           {/* Desktop Nav */}
           <div className="bg-primary flex items-center justify-end lg:justify-between h-full w-[65%] px-8">
             <nav className="hidden lg:flex items-center space-x-12">
               {NAVIGATION.main.map((item) => (
-                <Link key={item.href} href={item.href} className="nav-link-desktop text-white text-responsive-base !font-medium">
+                <ProgressLink key={item.href} href={item.href} className="nav-link-desktop text-white text-responsive-base !font-medium">
                   {item.label}
-                </Link>
+                </ProgressLink>
               ))}
             </nav>
 
@@ -81,10 +82,10 @@ export default function Header() {
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
                   {/* Wishlist Link */}
-                  <Link href="/wishlist" className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors duration-200" title="Wishlist">
+                  <ProgressLink href="/wishlist" className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors duration-200" title="Wishlist">
                     <Heart size={18} />
                     <span className="font-medium">Wishlist</span>
-                  </Link>
+                  </ProgressLink>
 
                   <div className="flex items-center space-x-2 text-white">
                     <User size={18} />
@@ -120,9 +121,14 @@ export default function Header() {
         <div className={cn("bg-gradient-to-b from-gray-50 to-white lg:hidden transition-all duration-300 ease-in-out overflow-hidden border-t border-gray-100", isMobileMenuOpen ? "max-h-[500px] pb-6" : "max-h-0")}>
           <nav className="flex flex-col space-y-1 pt-4 px-4">
             {NAVIGATION.main.map((item) => (
-              <Link key={item.href} href={item.href} className="nav-link py-3 px-4 rounded-lg transition-all duration-200 hover:bg-primary-50 hover:text-primary-600 text-gray-700 font-medium" onClick={() => setIsMobileMenuOpen(false)}>
+              <ProgressLink
+                key={item.href}
+                href={item.href}
+                className="nav-link py-3 px-4 rounded-lg transition-all duration-200 hover:bg-primary-50 hover:text-primary-600 text-gray-700 font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 {item.label}
-              </Link>
+              </ProgressLink>
             ))}
 
             {/* Authentication Section */}
@@ -138,14 +144,14 @@ export default function Header() {
                   </div>
 
                   {/* Wishlist Link */}
-                  <Link
+                  <ProgressLink
                     href="/wishlist"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full flex items-center space-x-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm"
                   >
                     <Heart size={16} />
                     <span>Wishlist</span>
-                  </Link>
+                  </ProgressLink>
 
                   {/* Logout Button */}
                   <button
