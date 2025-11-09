@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { LogOut, User, Heart } from "react-feather";
+import { LogOut, User, Heart, ChevronDown, Package, ShoppingBag } from "react-feather";
 import RegisterModal from "../../common/RegisterModal";
 import LoginModal from "../../common/LoginModal";
 import ProgressLink from "../../common/ProgressLink";
@@ -15,7 +15,23 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, logout, refreshAuth } = useAuth();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -49,12 +65,18 @@ export default function Header() {
   const handleLogout = () => {
     logout();
     setIsMobileMenuOpen(false);
+    setIsUserDropdownOpen(false);
   };
 
   // Function to handle successful login/register
   const handleAuthSuccess = () => {
     refreshAuth();
     closeModals();
+  };
+
+  // Close dropdown when clicking outside
+  const handleUserDropdownToggle = () => {
+    setIsUserDropdownOpen(!isUserDropdownOpen);
   };
 
   return (
@@ -87,14 +109,43 @@ export default function Header() {
                     <span className="font-medium">Wishlist</span>
                   </ProgressLink>
 
-                  <div className="flex items-center space-x-2 text-white">
-                    <User size={18} />
-                    <span className="font-medium">{user?.name}</span>
+                  {/* User Dropdown */}
+                  <div className="relative" ref={dropdownRef}>
+                    <button onClick={handleUserDropdownToggle} className="flex items-center space-x-2 text-white hover:text-gray-200 transition-colors duration-200 group">
+                      <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                        <User size={16} />
+                      </div>
+                      <span className="font-medium">{user?.name}</span>
+                      <ChevronDown size={16} className={`transition-transform duration-200 ${isUserDropdownOpen ? "rotate-180" : ""}`} />
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {isUserDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-in fade-in-0 zoom-in-95 duration-200">
+                        <div className="px-4 py-2 border-b border-gray-100">
+                          <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                          <p className="text-xs text-gray-600">{user?.email}</p>
+                        </div>
+
+                        <Link href="/transaksi" onClick={() => setIsUserDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                          <Package size={16} />
+                          <span>Riwayat Transaksi</span>
+                        </Link>
+
+                        <Link href="/wishlist" onClick={() => setIsUserDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                          <Heart size={16} />
+                          <span>Wishlist Saya</span>
+                        </Link>
+
+                        <div className="border-t border-gray-100 mt-2 pt-2">
+                          <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left">
+                            <LogOut size={16} />
+                            <span>Keluar</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <button onClick={handleLogout} className="flex items-center space-x-1 bg-white text-primary hover:bg-gray-100 font-medium px-4 py-2 rounded-lg transition-colors duration-200">
-                    <LogOut size={16} />
-                    <span>Keluar</span>
-                  </button>
                 </div>
               ) : (
                 <>
@@ -118,7 +169,7 @@ export default function Header() {
         </div>
 
         {/* Mobile Menu */}
-        <div className={cn("bg-gradient-to-b from-gray-50 to-white lg:hidden transition-all duration-300 ease-in-out overflow-hidden border-t border-gray-100", isMobileMenuOpen ? "max-h-[500px] pb-6" : "max-h-0")}>
+        <div className={cn("bg-gradient-to-b from-gray-50 to-white lg:hidden transition-all duration-300 ease-in-out overflow-hidden border-t border-gray-100", isMobileMenuOpen ? "max-h-[600px] pb-6" : "max-h-0")}>
           <nav className="flex flex-col space-y-1 pt-4 px-4">
             {NAVIGATION.main.map((item) => (
               <ProgressLink
@@ -136,31 +187,49 @@ export default function Header() {
               {isAuthenticated ? (
                 <div className="space-y-3">
                   {/* User Info */}
-                  <div className="flex items-center space-x-3 px-4 py-2 bg-gray-100 rounded-lg">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                      <User size={16} className="text-white" />
+                  <div className="flex items-center space-x-3 px-4 py-3 bg-primary/5 border border-primary/20 rounded-lg">
+                    <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                      <User size={18} className="text-white" />
                     </div>
-                    <span className="font-medium text-gray-700 text-sm">{user?.name}</span>
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 text-sm">{user?.name}</p>
+                      <p className="text-xs text-gray-600">{user?.email}</p>
+                    </div>
                   </div>
 
-                  {/* Wishlist Link */}
-                  <ProgressLink
-                    href="/wishlist"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full flex items-center space-x-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm"
-                  >
-                    <Heart size={16} />
-                    <span>Wishlist</span>
-                  </ProgressLink>
+                  {/* Menu Links */}
+                  <div className="space-y-2">
+                    {/* Wishlist Link */}
+                    <ProgressLink
+                      href="/wishlist"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full flex items-center space-x-3 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm"
+                    >
+                      <Heart size={18} />
+                      <span>Wishlist Saya</span>
+                    </ProgressLink>
 
-                  {/* Logout Button */}
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center justify-center space-x-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm"
-                  >
-                    <LogOut size={16} />
-                    <span>Keluar</span>
-                  </button>
+                    {/* Transaction History Link */}
+                    <ProgressLink
+                      href="/transaksi"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full flex items-center space-x-3 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm"
+                    >
+                      <Package size={18} />
+                      <span>Riwayat Transaksi</span>
+                    </ProgressLink>
+                  </div>
+
+                  {/* Logout Button - Separated for emphasis */}
+                  <div className="pt-2 border-t border-gray-200">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center space-x-3 bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 hover:border-red-300 font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm"
+                    >
+                      <LogOut size={18} />
+                      <span>Keluar</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-3">

@@ -9,6 +9,8 @@ import { isVideoUrl } from "@/services/auctionService";
 import { WishlistButton } from "../icons/WishlistIcon";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/common/Toast";
+import PurchaseModal from "./PurchaseModal";
 
 interface ProductCardProps {
   product: BackendProduct;
@@ -22,7 +24,9 @@ const isBackendProduct = (product: BackendProduct): product is BackendProduct =>
 
 export default function ProductCard({ product, className = "" }: ProductCardProps) {
   const [mediaError, setMediaError] = useState(false);
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const { isAuthenticated } = useAuth();
+  const { showToast } = useToast();
   const { isInWishlist, addItemToWishlist, removeItemFromWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
 
   // Check if this product is in wishlist
@@ -31,8 +35,12 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
 
   const handleWishlistToggle = async () => {
     if (!isAuthenticated) {
-      // Could trigger login modal here
-      console.log("Please log in to add items to wishlist");
+      // Show toast notification for non-authenticated users
+      showToast({
+        type: "warning",
+        title: "Login Diperlukan",
+        message: "Silakan login terlebih dahulu untuk menambahkan item ke wishlist",
+      });
       return;
     }
 
@@ -55,8 +63,13 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
   };
 
   const handleBuyClick = () => {
-    // No action on click as requested
-    console.log(`Buy clicked for ${normalizedProduct.name}`);
+    setIsPurchaseModalOpen(true);
+  };
+
+  const handlePurchaseSuccess = () => {
+    // Refresh any necessary data after successful purchase
+    console.log("Purchase successful for:", normalizedProduct.name);
+    // You could trigger a toast notification here
   };
 
   const formatPriceDisplay = (price: number) => {
@@ -105,6 +118,9 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
             Beli Sekarang
           </button>
         </div>
+
+        {/* Purchase Modal */}
+        <PurchaseModal isOpen={isPurchaseModalOpen} onClose={() => setIsPurchaseModalOpen(false)} product={product} onSuccess={handlePurchaseSuccess} />
       </div>
     );
   }
@@ -137,6 +153,9 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
           <WishlistButton isInWishlist={itemInWishlist} isLoading={isWishlistLoading} onToggle={handleWishlistToggle} size={20} />
         </div>
       )}
+
+      {/* Purchase Modal */}
+      <PurchaseModal isOpen={isPurchaseModalOpen} onClose={() => setIsPurchaseModalOpen(false)} product={product} onSuccess={handlePurchaseSuccess} />
     </div>
   );
 }

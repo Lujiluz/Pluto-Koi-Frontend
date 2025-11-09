@@ -293,6 +293,21 @@ export default function ProductPageClient({ initialData, initialParams }: Produc
                     Hapus Semua Filter
                   </button>
                 )}
+
+                {/* Track Order Button for Non-Authenticated Users */}
+                {!isAuthenticated && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
+                      <ShoppingBag size={16} />
+                      Sudah Pernah Belanja?
+                    </h4>
+                    <p className="text-sm text-blue-700 mb-3">Lacak status pesanan Anda dengan mudah</p>
+                    <Link href="/transaksi" className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                      <ShoppingBag size={16} />
+                      Lacak Pesanan
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>
