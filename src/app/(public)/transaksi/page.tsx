@@ -1,5 +1,5 @@
+import TransactionPageClient from "@/app/components/pages/TransactionPageClient";
 import { Metadata } from "next";
-import TransactionPageClient from "../../components/pages/TransactionPageClient";
 
 export const metadata: Metadata = {
   title: "Riwayat Transaksi | Pluto Koi",
@@ -8,4 +8,5 @@ export const metadata: Metadata = {
 
 export default function TransactionPage() {
   return <TransactionPageClient />;
+
 }
