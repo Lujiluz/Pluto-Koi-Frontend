@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Eye, EyeOff, AlertCircle, XCircle } from "react-feather";
-import { registerUser, validateEmail, validatePassword, validateName, validatePasswordMatch } from "@/services/authService";
+import { registerUser, validateEmail, validatePassword, validateName, validatePasswordMatch, validatePhoneNumber, validateAddress } from "@/services/authService";
 import { UserRole } from "@/lib/types";
 
 interface RegisterModalProps {
@@ -17,6 +17,12 @@ interface ValidationErrors {
   email?: string;
   password?: string;
   confirmPassword?: string;
+  phoneNumber?: string;
+  street?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
   general?: string;
 }
 
@@ -26,6 +32,14 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
     email: "",
     password: "",
     confirmPassword: "",
+    phoneNumber: "",
+    address: {
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "",
+    },
     rememberMe: false,
   });
 
@@ -38,16 +52,29 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
     const { name, value, type, checked } = e.target;
     const newValue = type === "checkbox" ? checked : value;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
+    // Handle address fields
+    if (name.startsWith("address.")) {
+      const addressField = name.split(".")[1];
+      setFormData((prev) => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          [addressField]: newValue as string,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: newValue,
+      }));
+    }
 
     // Real-time validation - clear error when user starts typing
-    if (errors[name as keyof ValidationErrors]) {
+    const errorKey = name.startsWith("address.") ? name.split(".")[1] : name;
+    if (errors[errorKey as keyof ValidationErrors]) {
       setErrors((prev) => ({
         ...prev,
-        [name]: undefined,
+        [errorKey]: undefined,
       }));
     }
   };
@@ -63,13 +90,21 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
       const emailError = validateEmail(formData.email);
       const passwordError = validatePassword(formData.password);
       const confirmPasswordError = validatePasswordMatch(formData.password, formData.confirmPassword);
+      const phoneNumberError = validatePhoneNumber(formData.phoneNumber);
+      const addressErrors = validateAddress(formData.address);
 
-      if (nameError || emailError || passwordError || confirmPasswordError) {
+      if (nameError || emailError || passwordError || confirmPasswordError || phoneNumberError || Object.values(addressErrors).some((error) => error)) {
         setErrors({
           name: nameError || undefined,
           email: emailError || undefined,
           password: passwordError || undefined,
           confirmPassword: confirmPasswordError || undefined,
+          phoneNumber: phoneNumberError || undefined,
+          street: addressErrors.street || undefined,
+          city: addressErrors.city || undefined,
+          state: addressErrors.state || undefined,
+          zipCode: addressErrors.zipCode || undefined,
+          country: addressErrors.country || undefined,
         });
         return;
       }
@@ -79,7 +114,9 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        phoneNumber: formData.phoneNumber,
         role: UserRole.endUser,
+        address: formData.address,
       });
 
       console.log("response: ", response);
@@ -94,6 +131,14 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
           email: "",
           password: "",
           confirmPassword: "",
+          phoneNumber: "",
+          address: {
+            street: "",
+            city: "",
+            state: "",
+            zipCode: "",
+            country: "",
+          },
           rememberMe: false,
         });
         setErrors({});
@@ -159,7 +204,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
             </div>
           )}
 
-          <div className="grid grid-rows-2 grid-cols-2 gap-8">
+          <div className="grid grid-rows-4 grid-cols-2 gap-8">
             {/* Name */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-2">
@@ -200,8 +245,48 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
               <ErrorMessage error={errors.email} />
             </div>
 
+            {/* Phone Number */}
+            <div>
+              <label htmlFor="phoneNumber" className="block text-sm font-medium mb-2">
+                Nomor Telepon
+              </label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                placeholder="+62 812-3456-7890"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors duration-200 ${
+                  errors.phoneNumber ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200"
+                }`}
+                required
+              />
+              <ErrorMessage error={errors.phoneNumber} />
+            </div>
+
+            {/* Street Address */}
+            <div>
+              <label htmlFor="address.street" className="block text-sm font-medium mb-2">
+                Alamat Lengkap
+              </label>
+              <input
+                type="text"
+                id="address.street"
+                name="address.street"
+                value={formData.address.street}
+                onChange={handleInputChange}
+                placeholder="Jl. Merdeka No. 123"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors duration-200 ${
+                  errors.street ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200"
+                }`}
+                required
+              />
+              <ErrorMessage error={errors.street} />
+            </div>
+
             {/* Password */}
-            <div className="row-start-2">
+            <div className="row-start-3">
               <label htmlFor="password" className="block text-sm font-medium mb-2">
                 Password
               </label>
@@ -226,7 +311,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
             </div>
 
             {/* Confirm Password */}
-            <div className="row-start-2">
+            <div className="row-start-3">
               <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
                 Konfirmasi Password
               </label>
@@ -248,6 +333,89 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
                 </button>
               </div>
               <ErrorMessage error={errors.confirmPassword} />
+            </div>
+
+            {/* City */}
+            <div className="row-start-4">
+              <label htmlFor="address.city" className="block text-sm font-medium mb-2">
+                Kota
+              </label>
+              <input
+                type="text"
+                id="address.city"
+                name="address.city"
+                value={formData.address.city}
+                onChange={handleInputChange}
+                placeholder="Jakarta"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors duration-200 ${
+                  errors.city ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200"
+                }`}
+                required
+              />
+              <ErrorMessage error={errors.city} />
+            </div>
+
+            {/* State */}
+            <div className="row-start-4">
+              <label htmlFor="address.state" className="block text-sm font-medium mb-2">
+                Provinsi
+              </label>
+              <input
+                type="text"
+                id="address.state"
+                name="address.state"
+                value={formData.address.state}
+                onChange={handleInputChange}
+                placeholder="DKI Jakarta"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors duration-200 ${
+                  errors.state ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200"
+                }`}
+                required
+              />
+              <ErrorMessage error={errors.state} />
+            </div>
+          </div>
+
+          {/* Additional Address Fields Row */}
+          <div className="grid grid-cols-2 gap-8 mt-4">
+            {/* ZIP Code */}
+            <div>
+              <label htmlFor="address.zipCode" className="block text-sm font-medium mb-2">
+                Kode Pos
+              </label>
+              <input
+                type="text"
+                id="address.zipCode"
+                name="address.zipCode"
+                value={formData.address.zipCode}
+                onChange={handleInputChange}
+                placeholder="12345"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors duration-200 ${
+                  errors.zipCode ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200"
+                }`}
+                required
+              />
+              <ErrorMessage error={errors.zipCode} />
+            </div>
+
+            {/* Country */}
+            <div>
+              <label htmlFor="address.country" className="block text-sm font-medium mb-2">
+                Negara
+              </label>
+              <input
+                type="text"
+                id="address.country"
+                name="address.country"
+                value={formData.address.country}
+                onChange={handleInputChange}
+                placeholder="Indonesia"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors duration-200 ${
+                  errors.country ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200"
+                }`}
+                required
+              />
+              <ErrorMessage error={errors.country} />
             </div>
           </div>
 

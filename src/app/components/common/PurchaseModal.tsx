@@ -357,9 +357,9 @@ export default function PurchaseModal({ isOpen, onClose, product, onSuccess }: P
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={handleBackdropClick}>
-      <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto relative animate-in fade-in-0 zoom-in-95 duration-200">
+      <div className="bg-white rounded-2xl p-6 w-[941px] relative animate-in fade-in-0 zoom-in-95 duration-200">
         {/* Close Button */}
-        <button onClick={handleClose} className="absolute top-4 right-4 p-1 rounded-full cursor-pointer transition-colors hover:bg-gray-100">
+        <button onClick={handleClose} className="absolute top-4 right-4 p-1 rounded-full cursor-pointer transition-colors">
           <XCircle size={18} />
         </button>
 

@@ -104,7 +104,15 @@ export const registerUser = async (userRegistrationData: RegisterRequest): Promi
       name: userRegistrationData.name.trim(),
       email: userRegistrationData.email.toLowerCase().trim(),
       password: userRegistrationData.password,
+      phoneNumber: userRegistrationData.phoneNumber.trim(),
       role: userRegistrationData.role || UserRole.endUser,
+      address: {
+        street: userRegistrationData.address.street.trim(),
+        city: userRegistrationData.address.city.trim(),
+        state: userRegistrationData.address.state.trim(),
+        zipCode: userRegistrationData.address.zipCode.trim(),
+        country: userRegistrationData.address.country.trim(),
+      },
     });
 
     console.log("Registration response: ", response.data);
@@ -234,4 +242,23 @@ export const validateName = (name: string): string | null => {
 export const validatePasswordMatch = (password: string, confirmPassword: string): string | null => {
   if (password !== confirmPassword) return "Passwords do not match";
   return null;
+};
+
+export const validatePhoneNumber = (phoneNumber: string): string | null => {
+  const phoneRegex = /^[\d\s\-\+\(\)]+$/;
+  if (!phoneNumber.trim()) return "Phone number is required";
+  if (!phoneRegex.test(phoneNumber)) return "Please enter a valid phone number";
+  return null;
+};
+
+export const validateAddress = (address: { street: string; city: string; state: string; zipCode: string; country: string }): { [key: string]: string | null } => {
+  const errors: { [key: string]: string | null } = {};
+
+  if (!address.street?.trim()) errors.street = "Street address is required";
+  if (!address.city?.trim()) errors.city = "City is required";
+  if (!address.state?.trim()) errors.state = "State is required";
+  if (!address.zipCode?.trim()) errors.zipCode = "ZIP code is required";
+  if (!address.country?.trim()) errors.country = "Country is required";
+
+  return errors;
 };

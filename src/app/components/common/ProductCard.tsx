@@ -93,69 +93,71 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
 
   if (isListView) {
     return (
-      <div className={`card-hover overflow-hidden ${className}`}>
-        {/* Product Image */}
-        <div className="relative h-32 w-32 md:h-40 md:w-40 flex-shrink-0 overflow-hidden">{renderMedia()}</div>
+      <>
+        <div className={`card-hover overflow-hidden ${className}`}>
+          {/* Product Image */}
+          <div className="relative h-32 w-32 md:h-40 md:w-40 flex-shrink-0 overflow-hidden">{renderMedia()}</div>
 
-        {/* Product Content */}
-        <div className="flex-1 p-4 flex flex-col justify-between">
-          <div>
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">{normalizedProduct.name}</h3>
-                <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
-                  <span className="px-2 py-1 bg-gray-100 rounded">{normalizedProduct.category}</span>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">{normalizedProduct.type}</span>
+          {/* Product Content */}
+          <div className="flex-1 p-4 flex flex-col justify-between">
+            <div>
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{normalizedProduct.name}</h3>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                    <span className="px-2 py-1 bg-gray-100 rounded">{normalizedProduct.category}</span>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">{normalizedProduct.type}</span>
+                  </div>
                 </div>
+                {isAuthenticated && <WishlistButton isInWishlist={itemInWishlist} isLoading={isWishlistLoading} onToggle={handleWishlistToggle} size={20} />}
               </div>
-              {isAuthenticated && <WishlistButton isInWishlist={itemInWishlist} isLoading={isWishlistLoading} onToggle={handleWishlistToggle} size={20} />}
+              <p className="text-xl font-bold text-primary mb-4">{formatPriceDisplay(normalizedProduct.price)}</p>
             </div>
-            <p className="text-xl font-bold text-primary mb-4">{formatPriceDisplay(normalizedProduct.price)}</p>
+
+            {/* Buy Button */}
+            <button onClick={handleBuyClick} className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white py-2 px-6 rounded-lg font-medium transition-colors cursor-pointer">
+              Beli Sekarang
+            </button>
           </div>
-
-          {/* Buy Button */}
-          <button onClick={handleBuyClick} className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white py-2 px-6 rounded-lg font-medium transition-colors cursor-pointer">
-            Beli Sekarang
-          </button>
         </div>
-
         {/* Purchase Modal */}
         <PurchaseModal isOpen={isPurchaseModalOpen} onClose={() => setIsPurchaseModalOpen(false)} product={product} onSuccess={handlePurchaseSuccess} />
-      </div>
+      </>
     );
   }
 
   return (
-    <div className={`card-hover overflow-hidden relative ${className}`}>
-      {/* Product Image */}
-      <div className="relative h-48 md:h-56 lg:h-64 overflow-hidden">{renderMedia()}</div>
+    <>
+      <div className={`card-hover overflow-hidden relative ${className}`}>
+        {/* Product Image */}
+        <div className="relative h-48 md:h-56 lg:h-64 overflow-hidden">{renderMedia()}</div>
 
-      {/* Product Content */}
-      <div className="p-6">
-        <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
-          <span className="px-2 py-1 bg-gray-100 rounded">{normalizedProduct.category}</span>
-          <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">{normalizedProduct.type}</span>
+        {/* Product Content */}
+        <div className="p-6">
+          <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+            <span className="px-2 py-1 bg-gray-100 rounded">{normalizedProduct.category}</span>
+            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">{normalizedProduct.type}</span>
+          </div>
+
+          <h3 className="text-xl font-semibold text-gray-900 mb-3 duration-300 line-clamp-2">{normalizedProduct.name}</h3>
+
+          <p className="text-2xl font-bold text-primary mb-6">{formatPriceDisplay(normalizedProduct.price)}</p>
+
+          {/* Buy Button */}
+          <button onClick={handleBuyClick} className="w-full bg-primary hover:bg-primary/90 text-white py-3 px-6 rounded-lg font-medium transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+            Beli Sekarang
+          </button>
         </div>
 
-        <h3 className="text-xl font-semibold text-gray-900 mb-3 duration-300 line-clamp-2">{normalizedProduct.name}</h3>
-
-        <p className="text-2xl font-bold text-primary mb-6">{formatPriceDisplay(normalizedProduct.price)}</p>
-
-        {/* Buy Button */}
-        <button onClick={handleBuyClick} className="w-full bg-primary hover:bg-primary/90 text-white py-3 px-6 rounded-lg font-medium transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
-          Beli Sekarang
-        </button>
+        {/* Wishlist Button for Grid View */}
+        {isAuthenticated && (
+          <div className="absolute top-2 right-2">
+            <WishlistButton isInWishlist={itemInWishlist} isLoading={isWishlistLoading} onToggle={handleWishlistToggle} size={20} />
+          </div>
+        )}
       </div>
-
-      {/* Wishlist Button for Grid View */}
-      {isAuthenticated && (
-        <div className="absolute top-2 right-2">
-          <WishlistButton isInWishlist={itemInWishlist} isLoading={isWishlistLoading} onToggle={handleWishlistToggle} size={20} />
-        </div>
-      )}
-
       {/* Purchase Modal */}
       <PurchaseModal isOpen={isPurchaseModalOpen} onClose={() => setIsPurchaseModalOpen(false)} product={product} onSuccess={handlePurchaseSuccess} />
-    </div>
+    </>
   );
 }
