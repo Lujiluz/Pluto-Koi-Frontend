@@ -42,7 +42,6 @@ interface ProductPageClientProps {
 
 export default function ProductPageClient({ initialData, initialParams }: ProductPageClientProps) {
   const { isAuthenticated } = useAuth();
-  const { isInWishlist, addItemToWishlist, removeItemFromWishlist } = useWishlist();
 
   // Fetch categories from API
   const { categories: productCategories, isLoading: categoriesLoading, error: categoriesError } = useCategoriesForFilter();
