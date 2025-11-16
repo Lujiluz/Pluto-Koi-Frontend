@@ -1,9 +1,10 @@
 import AxiosInstance from "@/utils/axiosInstance";
-import { GalleryApiResponse } from "@/lib/types";
+import { GalleryApiResponse, GalleryFoldersResponse } from "@/lib/types";
 
 // Base gallery API endpoints
 const GALLERY_ENDPOINTS = {
   GET_ALL: "/gallery",
+  GET_FOLDERS: "/gallery-folders/active/public",
 } as const;
 
 // Gallery query parameters interface
@@ -11,6 +12,8 @@ export interface GalleryQueryParams {
   page?: number;
   limit?: number;
   owner?: string;
+  folderName?: string;
+  search?: string;
   isActive?: boolean;
 }
 
@@ -24,7 +27,9 @@ export const getGalleriesClient = async (params: GalleryQueryParams = {}): Promi
     queryParams.append("limit", (params.limit || 10).toString());
 
     // Add optional filters
+    if (params.search) queryParams.append("search", params.search);
     if (params.owner) queryParams.append("owner", params.owner);
+    if (params.folderName) queryParams.append("folderName", params.folderName);
     if (params.isActive !== undefined) queryParams.append("isActive", params.isActive.toString());
 
     const response = await AxiosInstance.get(`${GALLERY_ENDPOINTS.GET_ALL}?${queryParams.toString()}`);
@@ -47,7 +52,9 @@ export const getGalleriesServer = async (params: GalleryQueryParams = {}): Promi
     queryParams.append("limit", (params.limit || 10).toString());
 
     // Add optional filters
+    if (params.search) queryParams.append("search", params.search);
     if (params.owner) queryParams.append("owner", params.owner);
+    if (params.folderName) queryParams.append("folderName", params.folderName);
     if (params.isActive !== undefined) queryParams.append("isActive", params.isActive.toString());
 
     const response = await fetch(`${baseUrl}${GALLERY_ENDPOINTS.GET_ALL}?${queryParams.toString()}`, {
@@ -103,4 +110,16 @@ export const getPreviewMediaUrl = (gallery: any): string => {
     return gallery.media[0].fileUrl;
   }
   return "/images/koi/contoh_ikan.png"; // fallback image
+};
+
+// Get active gallery folders for dropdown
+export const getGalleryFolders = async (): Promise<GalleryFoldersResponse> => {
+  try {
+    const response = await AxiosInstance.get(GALLERY_ENDPOINTS.GET_FOLDERS);
+    console.log("response: ", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching gallery folders:", error);
+    throw new Error(error.response?.data?.message || "Failed to fetch gallery folders");
+  }
 };

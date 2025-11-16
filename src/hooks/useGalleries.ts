@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getGalleriesClient, GalleryQueryParams } from "@/services/galleryService";
+import { getGalleriesClient, getGalleryFolders, GalleryQueryParams } from "@/services/galleryService";
 import { GalleryApiResponse } from "@/lib/types";
 
 // Query keys for gallery queries
@@ -11,6 +11,7 @@ export const galleryKeys = {
   list: (params: GalleryQueryParams) => [...galleryKeys.lists(), params] as const,
   details: () => [...galleryKeys.all, "detail"] as const,
   detail: (id: string) => [...galleryKeys.details(), id] as const,
+  folders: () => [...galleryKeys.all, "folders"] as const,
 };
 
 // Hook to fetch galleries with pagination and filters
@@ -103,4 +104,22 @@ export const useGalleryPagination = (currentParams: GalleryQueryParams) => {
     prefetchNextPage,
     prefetchPreviousPage,
   };
+};
+
+// Hook to fetch gallery folders
+export const useGalleryFolders = () => {
+  return useQuery({
+    queryKey: galleryKeys.folders(),
+    queryFn: getGalleryFolders,
+    staleTime: 10 * 60 * 1000, // 10 minutes - folders don't change frequently
+    gcTime: 30 * 60 * 1000, // 30 minutes
+    retry: (failureCount, error: any) => {
+      if (error?.status >= 400 && error?.status < 500) {
+        return false;
+      }
+      return failureCount < 3;
+    },
+    refetchOnWindowFocus: false,
+    refetchOnMount: false, // Cache folders aggressively
+  });
 };

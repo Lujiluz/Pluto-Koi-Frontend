@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { useGalleries, useRefreshGalleries } from "@/hooks/useGalleries";
+import { useGalleries, useRefreshGalleries, useGalleryFolders } from "@/hooks/useGalleries";
 import { GalleryQueryParams } from "@/services/galleryService";
 import { GalleryApiResponse, BackendGallery } from "@/lib/types";
 import GalleryCard from "@/app/components/common/GalleryCard";
 import GalleryModal from "@/app/components/common/GalleryModal";
-import { RefreshCw, AlertCircle, Grid, Filter, Search, ChevronLeft, ChevronRight } from "react-feather";
+import { RefreshCw, AlertCircle, Grid, Search, ChevronLeft, ChevronRight } from "react-feather";
 
 interface GalleryPageClientProps {
   initialData?: GalleryApiResponse | null;
@@ -18,7 +18,9 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
   const [selectedGallery, setSelectedGallery] = useState<BackendGallery | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [filterOwner, setFilterOwner] = useState("");
+  const [filterFolder, setFilterFolder] = useState("");
 
   const [queryParams, setQueryParams] = useState<GalleryQueryParams>({
     page: 1,
@@ -27,6 +29,7 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
   });
 
   const { data, isLoading, error, refetch } = useGalleries(queryParams);
+  const { data: foldersData, isLoading: foldersLoading } = useGalleryFolders();
   const refreshGalleries = useRefreshGalleries();
 
   // Use initial data if available
@@ -37,6 +40,8 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
     // Parse URL parameters
     const page = searchParams.get("page");
     const owner = searchParams.get("owner");
+    const folderName = searchParams.get("folderName");
+    const search = searchParams.get("search");
 
     if (page) {
       setQueryParams((prev) => ({ ...prev, page: parseInt(page) }));
@@ -45,7 +50,46 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
       setFilterOwner(owner);
       setQueryParams((prev) => ({ ...prev, owner }));
     }
+    if (folderName) {
+      setFilterFolder(folderName);
+      setQueryParams((prev) => ({ ...prev, folderName }));
+    }
+    if (search) {
+      setSearchQuery(search);
+      setDebouncedSearchQuery(search);
+      setQueryParams((prev) => ({ ...prev, search }));
+    }
   }, [searchParams]);
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Auto-refetch when filters change
+  useEffect(() => {
+    const newParams: GalleryQueryParams = {
+      page: 1, // Reset to first page when filters change
+      limit: 12,
+      isActive: true,
+    };
+
+    if (debouncedSearchQuery) {
+      newParams.search = debouncedSearchQuery;
+    }
+    if (filterOwner) {
+      newParams.owner = filterOwner;
+    }
+    if (filterFolder) {
+      newParams.folderName = filterFolder;
+    }
+
+    setQueryParams(newParams);
+  }, [debouncedSearchQuery, filterOwner, filterFolder]);
 
   const handleRefresh = () => {
     refreshGalleries.mutate(queryParams);
@@ -93,23 +137,11 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
     setSelectedGallery(null);
   };
 
-  const handleSearch = () => {
-    // Implement search functionality
-    const newParams: GalleryQueryParams = {
-      ...queryParams,
-      page: 1, // Reset to first page
-    };
-
-    if (filterOwner) {
-      newParams.owner = filterOwner;
-    }
-
-    setQueryParams(newParams);
-  };
-
   const clearFilters = () => {
     setSearchQuery("");
+    setDebouncedSearchQuery("");
     setFilterOwner("");
+    setFilterFolder("");
     setQueryParams({
       page: 1,
       limit: 12,
@@ -174,7 +206,7 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
                 placeholder="Cari galeri..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -188,15 +220,24 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
               ))}
             </select>
 
-            {/* Search Button */}
-            <button onClick={handleSearch} className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors cursor-pointer">
-              <Filter size={20} className="inline mr-2" />
-              Filter
-            </button>
+            {/* Filter by folder */}
+            <select
+              value={filterFolder}
+              onChange={(e) => setFilterFolder(e.target.value)}
+              disabled={foldersLoading}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer disabled:opacity-50"
+            >
+              <option value="">Semua Folder</option>
+              {foldersData?.data.folders.map((folder) => (
+                <option key={folder._id} value={folder.folderName}>
+                  {folder.folderName}
+                </option>
+              ))}
+            </select>
 
             {/* Clear Filters */}
             <button onClick={clearFilters} className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-              Reset
+              Reset Filter
             </button>
           </div>
         </div>
@@ -281,7 +322,11 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
 
                     for (let i = start; i <= end; i++) {
                       pages.push(
-                        <button key={i} onClick={() => handlePageChange(i)} className={`cursor-pointer px-3 py-2 border rounded-lg transition-colors ${i === currentPage ? "bg-primary text-white border-primary" : "border-gray-300 hover:bg-gray-50"}`}>
+                        <button
+                          key={i}
+                          onClick={() => handlePageChange(i)}
+                          className={`cursor-pointer px-3 py-2 border rounded-lg transition-colors ${i === currentPage ? "bg-primary text-white border-primary" : "border-gray-300 hover:bg-gray-50"}`}
+                        >
                           {i}
                         </button>
                       );

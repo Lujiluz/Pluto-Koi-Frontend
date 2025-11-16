@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { X, ChevronLeft, ChevronRight, User, MapPin, Calendar, Play, Download } from "react-feather";
+import { X, ChevronLeft, ChevronRight, User, MapPin, Calendar, Play, Download, Folder } from "react-feather";
 import { BackendGallery } from "@/lib/types";
 import { formatOwnerName } from "@/services/galleryService";
 import { isVideoUrl } from "@/services/auctionService";
@@ -143,6 +143,12 @@ export default function GalleryModal({ isOpen, onClose, gallery }: GalleryModalP
                 <MapPin size={16} />
                 <span>{gallery.handling}</span>
               </div>
+              {gallery.folderName && (
+                <div className="flex items-center space-x-1">
+                  <Folder size={16} />
+                  <span>{gallery.folderName}</span>
+                </div>
+              )}
               <div className="flex items-center space-x-1">
                 <Calendar size={16} />
                 <span>
@@ -247,6 +253,12 @@ export default function GalleryModal({ isOpen, onClose, gallery }: GalleryModalP
                 <p className="text-gray-600">Status:</p>
                 <p className={`font-medium ${gallery.isActive ? "text-green-600" : "text-red-600"}`}>{gallery.isActive ? "Aktif" : "Tidak Aktif"}</p>
               </div>
+              {gallery.folderName && (
+                <div>
+                  <p className="text-gray-600">Folder:</p>
+                  <p className="font-medium">{gallery.folderName}</p>
+                </div>
+              )}
               <div>
                 <p className="text-gray-600">Dibuat:</p>
                 <p className="font-medium">

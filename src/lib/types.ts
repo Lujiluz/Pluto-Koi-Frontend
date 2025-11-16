@@ -5,6 +5,15 @@ export interface BaseEntity {
   updatedAt: Date;
 }
 
+export interface Metadata {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 // Auth types
 export enum UserRole {
   admin = "admin",
@@ -141,6 +150,7 @@ export interface BackendGallery {
   galleryName: string;
   owner: string;
   handling: string;
+  folderName: string;
   isActive: boolean;
   media: GalleryMedia[];
   createdAt: string;
@@ -169,6 +179,10 @@ export interface GalleryApiResponse {
       totalMediaFiles: number;
       galleriesByOwner: Array<{
         owner: string;
+        count: number;
+      }>;
+      galleriesByFolder: Array<{
+        folderName: string;
         count: number;
       }>;
     };
@@ -359,6 +373,51 @@ export interface Address {
   postalCode: string;
   country: string;
   isDefault?: boolean;
+}
+
+// Gallery folder types
+export interface GalleryFolderData {
+  folders: GalleryFolder;
+  metadata: Metadata;
+  statistics: {
+    activeFolders: number;
+    foldersWithGalleryCount: object[];
+    inactiveFolders: number;
+    totalFolders: number;
+  };
+}
+export interface GalleryFolder {
+  _id: string;
+  folderName: string;
+  description: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GalleryFoldersResponse {
+  status: string;
+  message: string;
+  data: {
+    folders: GalleryFolder[];
+    metadata: {
+      page: number;
+      limit: number;
+      totalItems: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+    statistics: {
+      totalFolders: number;
+      activeFolders: number;
+      inactiveFolders: number;
+      foldersWithGalleryCount: Array<{
+        folderName: string | null;
+        galleryCount: number;
+      }>;
+    };
+  };
 }
 
 // Gallery types

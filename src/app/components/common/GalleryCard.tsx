@@ -6,6 +6,7 @@ import { BackendGallery } from "@/lib/types";
 import { formatOwnerName, getTotalMediaCount } from "@/services/galleryService";
 import { isVideoUrl } from "@/services/auctionService";
 import LiquidGlassContainer from "../ui/LiquidGlassContainer";
+import { Folder } from "react-feather";
 
 interface GalleryCardProps {
   gallery: BackendGallery;
@@ -62,6 +63,14 @@ export default function GalleryCard({ gallery, size = "medium", className = "", 
     <div className={`relative group overflow-hidden rounded-2xl ${sizeClasses[size]} ${className}`} onClick={handleCardClick} style={{ cursor: onClick ? "pointer" : "default" }}>
       {/* Background Media */}
       {renderMedia()}
+
+      {/* Folder Tag */}
+      {gallery.folderName && (
+        <div className="absolute top-4 left-4 bg-primary/90 text-white px-3 py-1 rounded-full text-sm flex items-center space-x-1">
+          <Folder size={14} />
+          <span>{gallery.folderName}</span>
+        </div>
+      )}
 
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
