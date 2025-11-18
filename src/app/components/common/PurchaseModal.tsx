@@ -703,7 +703,7 @@ export default function PurchaseModal({ isOpen, onClose, product, onSuccess }: P
   useEffect(() => {
     setIsMounted(true); // Pastikan mount di client
   }, []);
-  
+
   // Guest form data
   const [guestFormData, setGuestFormData] = useState<GuestFormData>({
     name: "",
@@ -1011,15 +1011,9 @@ export default function PurchaseModal({ isOpen, onClose, product, onSuccess }: P
     // Ubah z-index dari z-50 ke z-[60] untuk keamanan
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4" onClick={handleBackdropClick}>
       {/* Tambah onClick stopPropagation agar klik di modal tidak menutup modal */}
-      <div 
-        className="bg-white rounded-2xl p-6 w-[941px] relative animate-in fade-in-0 zoom-in-95 duration-200 overflow-y-auto max-h-[90vh]"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="bg-white rounded-2xl p-6 w-[941px] relative animate-in fade-in-0 zoom-in-95 duration-200 overflow-y-auto max-h-[90vh] no-scrollbar" onClick={(e) => e.stopPropagation()}>
         {/* Close Button Fix */}
-        <button 
-            onClick={handleClose} 
-            className="absolute top-4 right-4 p-2 z-10 bg-white hover:bg-gray-100 rounded-full transition-colors shadow-md border border-gray-100"
-        >
+        <button onClick={handleClose} className="absolute top-4 right-4 p-2 z-10 bg-white hover:bg-gray-100 rounded-full transition-colors shadow-md border border-gray-100">
           <X size={20} /> {/* Ganti dari XCircle ke X */}
         </button>
 
@@ -1027,6 +1021,11 @@ export default function PurchaseModal({ isOpen, onClose, product, onSuccess }: P
         <div className="mb-6 pt-1">
           <h2 className="text-xl md:text-2xl leading-tight font-bold mb-2">Beli Produk</h2>
           <p className="text-gray-600 text-sm">{isAuthenticated ? "Lengkapi form untuk melakukan pembelian produk" : "Lengkapi data diri untuk melakukan pembelian sebagai tamu"}</p>
+          <div className="bg-blue-50 rounded-xl p-4 my-2 border border-blue-200">
+            <p className="text-sm text-blue-900">
+              <span className="font-semibold">Info:</span> Harga yang tertera belum termasuk ongkos kirim. Silakan hubungi admin setelah melakukan pembelian untuk informasi ongkos kirim dan metode pembayaran.
+            </p>
+          </div>
         </div>
 
         {/* Product Info */}
