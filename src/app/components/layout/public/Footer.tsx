@@ -2,18 +2,18 @@
 
 import Image from "next/image";
 import { FacebookIcon, InstagramIcon, TiktokIcon, WhatsappIcon, YoutubeIcon } from "../../icons/landingPage";
-import { NAVIGATION, SITE_CONFIG } from "@/lib/constants";
+import { NAVIGATION, SITE_CONFIG, WHATSAPP_TEMPLATES } from "@/lib/constants";
 import Link from "next/link";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { icon: YoutubeIcon, href: "#", label: "Youtube", name: "plutoKoi" },
-    { icon: FacebookIcon, href: "#", label: "Facebook", name: "plutoKoiOfficial" },
-    { icon: InstagramIcon, href: "#", label: "Instagram", name: "plutoKoiOfficial" },
-    { icon: WhatsappIcon, href: "#", label: "Whatsapp", name: "plutoKoiOfficial" },
-    { icon: TiktokIcon, href: "#", label: "Tiktok", name: "plutoKoiOfficial" },
+    { icon: YoutubeIcon, href: "https://youtube.com/@plutokarpio1984", label: "Youtube", name: "plutokarpio1984" },
+    // { icon: FacebookIcon, href: "#", label: "Facebook", name: "plutoKoiOfficial" },
+    { icon: InstagramIcon, href: "https://www.instagram.com/pluto_koi_centre", label: "Instagram", name: "pluto_koi_centre" },
+    { icon: WhatsappIcon, href: `https://wa.me/+6285780004878?text=${encodeURIComponent(WHATSAPP_TEMPLATES.general)}`, label: "Whatsapp", name: "+62-857-8000-4878" },
+    { icon: TiktokIcon, href: "https://www.tiktok.com/@plutokarpio", label: "Tiktok", name: "plutokarpio" },
   ];
 
   return (
@@ -23,8 +23,8 @@ export default function Footer() {
         <div className="flex flex-col items-center space-y-8 lg:flex-row lg:justify-between lg:space-y-0 mb-8 sm:mb-12">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 order-1 lg:order-none">
-            <Image src="/images/pluto-koi-icon.svg" alt="Logo" width={32} height={32} className="sm:w-10 sm:h-10" />
-            <span className="font-extralight tracking-[0.2em] text-base sm:text-lg lg:text-xl font-poppins">{SITE_CONFIG.name.toUpperCase()}</span>
+            <Image src="/images/LOGO PLUTO-02.png" alt="Logo" width={100} height={100} />
+            {/* <span className="font-extralight tracking-[0.2em] text-base sm:text-lg lg:text-xl font-poppins">{SITE_CONFIG.name.toUpperCase()}</span> */}
           </Link>
 
           {/* Navigation Links */}
@@ -48,6 +48,8 @@ export default function Footer() {
                       href={social.href}
                       aria-label={social.label}
                       className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-800 hover:bg-primary rounded-full flex items-center justify-center text-gray-300 hover:text-white transition-all duration-300 transform hover:scale-110"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       <IconComponent />
                     </a>

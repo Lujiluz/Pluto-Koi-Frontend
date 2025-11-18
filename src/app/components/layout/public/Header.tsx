@@ -85,8 +85,8 @@ export default function Header() {
         <div className="bg-white flex items-center justify-between h-16 lg:h-16">
           {/* Logo */}
           <ProgressLink href="/" className="flex items-center space-x-2 px-8">
-            <Image src="/images/pluto-koi-icon.svg" alt="Logo" width={40} height={40} />
-            <span className="font-extralight tracking-[0.2em] text-lg lg:text-xl font-poppins">{SITE_CONFIG.name.toUpperCase()}</span>
+            <Image src="/images/LOGO PLUTO-01.png" alt="Logo" width={90} height={90} />
+            {/* <span className="font-extralight tracking-[0.2em] text-lg lg:text-xl font-poppins">{SITE_CONFIG.name.toUpperCase()}</span> */}
           </ProgressLink>
 
           {/* Desktop Nav */}

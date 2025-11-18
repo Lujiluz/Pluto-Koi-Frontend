@@ -121,3 +121,11 @@ export const SITE_CONFIG = {
   logo: "/images/pluto-koi-logo.svg",
   favicon: "/images/pluto-koi-icon.svg",
 } as const;
+
+
+// Whatsapp Message Templates
+export const WHATSAPP_TEMPLATES = {
+  inquiry: "Halo, saya tertarik dengan ikan/plankton/produk yang Anda tawarkan di Pluto Koi. Bisa tolong berikan informasi lebih lanjut?",
+  order: "Halo, saya ingin memesan ikan/plankton/produk dari Pluto Koi. Berikut detail pesanan saya:",
+  general: "Halo, saya ingin bertanya lebih lanjut tentang Pluto Koi.",
+}
