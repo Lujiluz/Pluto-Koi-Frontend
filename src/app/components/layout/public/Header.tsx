@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { LogOut, User, Heart, ChevronDown, Package, ShoppingBag } from "react-feather";
+import { LogOut, User, Heart, ChevronDown, Package, ShoppingBag, Award } from "react-feather";
 import RegisterModal from "../../common/RegisterModal";
 import LoginModal from "../../common/LoginModal";
 import ProgressLink from "../../common/ProgressLink";
@@ -132,6 +132,11 @@ export default function Header() {
                           <span>Riwayat Transaksi</span>
                         </Link>
 
+                        <Link href="/lelang-saya" onClick={() => setIsUserDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                          <Award size={16} />
+                          <span>Lelang Saya</span>
+                        </Link>
+
                         <Link href="/wishlist" onClick={() => setIsUserDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                           <Heart size={16} />
                           <span>Wishlist Saya</span>
@@ -207,6 +212,16 @@ export default function Header() {
                     >
                       <Heart size={18} />
                       <span>Wishlist Saya</span>
+                    </ProgressLink>
+
+                    {/* Lelang Saya Link */}
+                    <ProgressLink
+                      href="/lelang-saya"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full flex items-center space-x-3 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm"
+                    >
+                      <Award size={18} />
+                      <span>Lelang Saya</span>
                     </ProgressLink>
 
                     {/* Transaction History Link */}
