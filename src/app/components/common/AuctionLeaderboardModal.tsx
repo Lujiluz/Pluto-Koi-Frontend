@@ -391,7 +391,6 @@
 //   );
 // }
 
-
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -420,6 +419,12 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
   // DITAMBAH: State untuk cek client mount
   const [isMounted, setIsMounted] = useState(false);
 
+  // Track if we've already joined this auction to prevent duplicate joins
+  const [joinedAuctionId, setJoinedAuctionId] = useState<string | null>(null);
+
+  // Track if we've fetched data for this auction
+  const [fetchedAuctionId, setFetchedAuctionId] = useState<string | null>(null);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -427,6 +432,8 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
   // Calculate countdown timer
   const calculateCountdown = useCallback(
     (endDate: string, endTime: string) => {
+      if (!endDate || !endTime) return "00:00:00:00";
+
       const now = new Date();
       let end: Date;
 
@@ -435,8 +442,11 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
         end = new Date(endTime);
       } else {
         end = new Date(endDate);
-        const [hours, minutes] = endTime.split(":").map(Number);
-        end.setHours(hours, minutes, 0, 0);
+        const timeParts = endTime.split(":");
+        if (timeParts.length >= 2) {
+          const [hours, minutes] = timeParts.map(Number);
+          end.setHours(hours, minutes, 0, 0);
+        }
       }
 
       // If time extension occurred, use the new end time
@@ -474,23 +484,31 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
   useEffect(() => {
     if (!auction || !isOpen) return;
 
+    // Set initial countdown immediately
+    setCountdown(calculateCountdown(auction.endDate, auction.endTime));
+
     const timer = setInterval(() => {
       setCountdown(calculateCountdown(auction.endDate, auction.endTime));
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [auction, isOpen, calculateCountdown]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auction?.endDate, auction?.endTime, isOpen, timeExtension]);
 
-  // Fetch initial participants data when modal opens
+  // Fetch initial participants data when modal opens - ONLY ONCE per auction
   useEffect(() => {
     const fetchInitialData = async () => {
       if (!auction || !isOpen) return;
+
+      // Only fetch if we haven't fetched this auction yet
+      if (fetchedAuctionId === auction._id) return;
 
       setIsLoadingInitialData(true);
       try {
         const response = await getAuctionParticipantsClient(auction._id);
         if (response.status === "success") {
           setInitialData(response.data);
+          setFetchedAuctionId(auction._id);
         }
       } catch (error) {
         console.error("Failed to fetch initial participants:", error);
@@ -500,21 +518,27 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
     };
 
     fetchInitialData();
-  }, [auction, isOpen]);
+  }, [auction, isOpen, fetchedAuctionId]);
 
-  // Join auction room when modal opens
+  // Reset joined auction ID when auction changes
   useEffect(() => {
-    if (isOpen && auction && isConnected) {
-      joinAuction(auction._id);
+    if (auction && joinedAuctionId && joinedAuctionId !== auction._id) {
+      setJoinedAuctionId(null);
+      setFetchedAuctionId(null); // Also reset fetched data tracker
     }
+  }, [auction, joinedAuctionId]);
 
-    return () => {
-      if (auction) {
-        leaveAuction(auction._id);
-        clearLeaderboardData();
-      }
-    };
-  }, [isOpen, auction, isConnected, joinAuction, leaveAuction, clearLeaderboardData]);
+  // Join auction room when modal opens - ONLY ONCE per auction
+  useEffect(() => {
+    if (isOpen && auction && isConnected && joinedAuctionId !== auction._id) {
+      console.log("Modal: Joining auction for the first time:", auction._id);
+      joinAuction(auction._id);
+      setJoinedAuctionId(auction._id);
+    }
+  }, [isOpen, auction, isConnected, joinedAuctionId, joinAuction]);
+
+  // DON'T clear leaderboard data - keep it for smooth UX
+  // Data will be refreshed when modal opens again
 
   // Show new bid notification
   useEffect(() => {

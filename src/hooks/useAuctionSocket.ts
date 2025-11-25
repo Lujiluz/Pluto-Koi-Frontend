@@ -75,6 +75,7 @@ export function useAuctionSocket() {
   const [error, setError] = useState<SocketError | null>(null);
 
   const socketRef = useRef<Socket | null>(null);
+  const joinedAuctionsRef = useRef<Set<string>>(new Set()); // Track joined auctions
 
   // Initialize socket connection
   useEffect(() => {
@@ -159,6 +160,13 @@ export function useAuctionSocket() {
 
     // Cleanup on unmount
     return () => {
+      // Leave all joined auctions before closing
+      joinedAuctionsRef.current.forEach((auctionId) => {
+        console.log("Cleanup: Leaving auction:", auctionId);
+        newSocket.emit("leave_auction", { auctionId });
+      });
+      joinedAuctionsRef.current.clear();
+
       newSocket.close();
       socketRef.current = null;
     };
@@ -168,8 +176,15 @@ export function useAuctionSocket() {
   const joinAuction = useCallback(
     (auctionId: string) => {
       if (socketRef.current && isConnected) {
+        // Only join if not already joined
+        if (joinedAuctionsRef.current.has(auctionId)) {
+          console.log("Already joined auction:", auctionId);
+          return;
+        }
+
         console.log("Joining auction:", auctionId);
         socketRef.current.emit("join_auction", { auctionId });
+        joinedAuctionsRef.current.add(auctionId);
       } else {
         console.warn("Cannot join auction: socket not connected");
       }
@@ -179,9 +194,10 @@ export function useAuctionSocket() {
 
   // Leave auction room
   const leaveAuction = useCallback((auctionId: string) => {
-    if (socketRef.current) {
+    if (socketRef.current && joinedAuctionsRef.current.has(auctionId)) {
       console.log("Leaving auction:", auctionId);
       socketRef.current.emit("leave_auction", { auctionId });
+      joinedAuctionsRef.current.delete(auctionId);
     }
   }, []);
 
