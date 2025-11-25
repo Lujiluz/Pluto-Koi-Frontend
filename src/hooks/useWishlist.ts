@@ -180,7 +180,11 @@ export function useWishlist(): UseWishlistReturn {
       } else if (err.message?.includes("not found")) {
         errorTitle = "Item Tidak Ditemukan";
         errorMessage = "Item yang Anda coba tambahkan tidak ditemukan";
-      } else if (err.message?.includes("inactive") || err.message?.includes("expired") || err.message?.includes("ended")) {
+      } else if (err.message?.includes("inactive")) {
+        // Backend issue - auction might be marked as inactive incorrectly
+        errorTitle = "Tidak Dapat Ditambahkan";
+        errorMessage = "Terjadi masalah saat menambahkan ke wishlist. Silakan coba lagi nanti.";
+      } else if (err.message?.includes("expired") || err.message?.includes("ended")) {
         errorTitle = "Lelang Berakhir";
         errorMessage = "Lelang ini sudah berakhir dan tidak dapat ditambahkan ke wishlist";
       }
