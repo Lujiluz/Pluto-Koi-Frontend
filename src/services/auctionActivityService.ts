@@ -101,11 +101,38 @@ export interface AuctionConfirmationResponse {
   };
 }
 
+// Place Bid Request
+export interface PlaceBidRequest {
+  auctionId: string;
+  bidAmount: number;
+  bidType?: "initial" | "outbid" | "winning" | "auto";
+}
+
+// Place Bid Response
+export interface PlaceBidResponse {
+  success: boolean;
+  message: string;
+  data: {
+    auctionActivity: {
+      _id: string;
+      auctionId: string;
+      userId: string;
+      bidAmount: number;
+      bidType: string;
+      isActive: boolean;
+      bidTime: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+  };
+}
+
 // API Endpoints
 const AUCTION_ACTIVITY_ENDPOINTS = {
   GET_USER_HISTORY: (auctionId: string, userId: string) => `/auction-activity/auction/${auctionId}/user/${userId}/history`,
   GET_MY_AUCTIONS: "/auction-activity/my-auctions",
   CONFIRM_WIN: "/auction-activity/confirm-win",
+  PLACE_BID: "/auction-activity/bid",
 } as const;
 
 /**
@@ -162,6 +189,19 @@ export const confirmAuctionWin = async (data: AuctionConfirmationRequest): Promi
   }
 };
 
+/**
+ * Place a bid on an auction
+ */
+export const placeBid = async (data: PlaceBidRequest): Promise<PlaceBidResponse> => {
+  try {
+    const response = await AxiosInstance.post(AUCTION_ACTIVITY_ENDPOINTS.PLACE_BID, data);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error placing bid:", error);
+    throw new Error(error.response?.data?.message || "Failed to place bid");
+  }
+};
+
 // Validation helpers
 export const validatePaymentProof = (file: File | null): string | null => {
   if (!file) return "Payment proof is required";
@@ -174,6 +214,21 @@ export const validatePaymentProof = (file: File | null): string | null => {
   const maxSize = 5 * 1024 * 1024; // 5MB
   if (file.size > maxSize) {
     return "File size must be less than 5MB";
+  }
+
+  return null;
+};
+
+/**
+ * Validate bid amount
+ */
+export const validateBidAmount = (bidAmount: number, highestBid: number): string | null => {
+  if (!bidAmount || bidAmount <= 0) {
+    return "Nominal bid harus lebih dari 0";
+  }
+
+  if (bidAmount <= highestBid) {
+    return `Nominal bid harus lebih tinggi dari bid tertinggi saat ini (Rp ${highestBid.toLocaleString("id-ID")})`;
   }
 
   return null;

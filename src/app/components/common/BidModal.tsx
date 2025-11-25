@@ -1,23 +1,29 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom"; // <-- DITAMBAH
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, XCircle } from "react-feather";
 import { formatCurrency } from "@/lib/utils";
 import { AuctionData } from "@/data/auctions";
 import { getMediaType, isVideoUrl, getFallbackMedia } from "@/services/auctionService";
+import { placeBid, validateBidAmount } from "@/services/auctionActivityService";
+import { useToast } from "@/components/common/Toast";
 
 interface BidModalProps {
   isOpen: boolean;
   onClose: () => void;
   auction: AuctionData | null;
+  onSuccess?: () => void; // Callback to refresh auction data after successful bid
 }
 
-export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
+export default function BidModal({ isOpen, onClose, auction, onSuccess }: BidModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [bidAmount, setBidAmount] = useState("");
   const [mediaError, setMediaError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const { showToast } = useToast();
 
   // TAMBAH STATE isMounted
   const [isMounted, setIsMounted] = useState(false);
@@ -28,12 +34,16 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
 
   useEffect(() => {
     if (isOpen && auction) {
-      // Pastikan bidAmount adalah string, dan tambahkan 50000 (sesuai logika awal lu)
-      setBidAmount((auction.highestBid + 50000).toString());
+      // Set default bid amount hanya sekali pas modal dibuka
+      const defaultBidAmount = (auction.highestBid + 50000).toString();
+      setBidAmount(defaultBidAmount);
       setCurrentImageIndex(0);
       setMediaError(false); // Reset media error when opening modal
+    } else if (!isOpen) {
+      // Reset bidAmount saat modal ditutup
+      setBidAmount("");
     }
-  }, [isOpen, auction]);
+  }, [isOpen]);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -71,12 +81,70 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
     }
   };
 
-  const handleBidSubmit = (e: React.FormEvent) => {
+  const handleBidSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the bid to your backend
-    console.log("Submitting bid:", bidAmount);
-    // Show success message or handle response
-    onClose();
+    setError("");
+    setIsSubmitting(true);
+
+    if (!auction) {
+      setError("Informasi lelang tidak ditemukan");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      // Convert bidAmount to number
+      const numericBidAmount = parseInt(bidAmount.replace(/\D/g, ""));
+
+      // Validate bid amount
+      const validationError = validateBidAmount(numericBidAmount, auction.highestBid);
+      if (validationError) {
+        setError(validationError);
+        showToast({
+          type: "error",
+          title: "Validasi Gagal",
+          message: validationError,
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Place bid
+      const response = await placeBid({
+        auctionId: auction.id,
+        bidAmount: numericBidAmount,
+        bidType: "initial",
+      });
+
+      if (response.success) {
+        showToast({
+          type: "success",
+          title: "Bid Berhasil!",
+          message: `Bid Anda sebesar ${formatCurrency(numericBidAmount)} berhasil ditempatkan.`,
+        });
+
+        // Reset form and close modal
+        setBidAmount("");
+        setError("");
+        onClose();
+
+        // Trigger callback to refresh auction data
+        if (onSuccess) {
+          onSuccess();
+        }
+      }
+    } catch (err: any) {
+      console.error("Error submitting bid:", err);
+      const errorMessage = err.message || "Terjadi kesalahan saat menempatkan bid";
+      setError(errorMessage);
+      showToast({
+        type: "error",
+        title: "Bid Gagal",
+        message: errorMessage,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const formatBidAmount = (value: string) => {
@@ -230,13 +298,29 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
                 value={formatBidAmount(bidAmount)}
                 onChange={handleBidChange}
                 placeholder="Rp 1.300.000"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${error ? "border-red-500" : "border-gray-300"}`}
+                disabled={isSubmitting}
                 required
               />
+              {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
             </div>
 
-            <button type="submit" className="w-full cursor-pointer bg-primary hover:bg-primary-600 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-              BID Sekarang
+            <button
+              type="submit"
+              disabled={isSubmitting || !bidAmount}
+              className="w-full cursor-pointer bg-primary hover:bg-primary-600 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            >
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Memproses BID...
+                </>
+              ) : (
+                "BID Sekarang"
+              )}
             </button>
           </form>
         </div>

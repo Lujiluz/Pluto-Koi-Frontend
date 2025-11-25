@@ -21,7 +21,7 @@ export default function AuctionDetailPage() {
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
   const [mediaError, setMediaError] = useState<{ [key: number]: boolean }>({});
 
-  const { data: auctionResponse, isLoading, error, isError } = useAuctionDetail(auctionId);
+  const { data: auctionResponse, isLoading, error, isError, refetch } = useAuctionDetail(auctionId);
 
   const auction = auctionResponse?.status === "success" ? auctionResponse.data : null;
 
@@ -49,6 +49,11 @@ export default function AuctionDetailPage() {
     setIsBidModalOpen(false);
   };
 
+  const handleBidSuccess = () => {
+    // Refresh auction data after successful bid
+    refetch();
+  };
+
   const handleLeaderboardClick = () => {
     setIsLeaderboardModalOpen(true);
   };
@@ -58,6 +63,7 @@ export default function AuctionDetailPage() {
   };
 
   // Convert BackendAuctionDetail to AuctionData format for BidModal compatibility
+  console.log('AUCTION: ', auction)
   const convertedAuction = auction
     ? ({
         id: auction._id,
@@ -286,7 +292,7 @@ export default function AuctionDetailPage() {
       </div>
 
       {/* Bid Modal */}
-      {convertedAuction && <BidModal isOpen={isBidModalOpen} onClose={handleBidModalClose} auction={convertedAuction} />}
+      {convertedAuction && <BidModal isOpen={isBidModalOpen} onClose={handleBidModalClose} auction={convertedAuction} onSuccess={handleBidSuccess} />}
 
       {/* Leaderboard Modal */}
       <AuctionLeaderboardModal isOpen={isLeaderboardModalOpen} onClose={handleLeaderboardModalClose} auction={auction} />
