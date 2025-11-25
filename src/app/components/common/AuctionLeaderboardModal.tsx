@@ -394,8 +394,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { createPortal } from "react-dom"; // <-- DITAMBAH
+import { createPortal } from "react-dom";
 import { useAuctionSocket } from "@/hooks/useAuctionSocket";
+import { useAuth } from "@/hooks/useAuth";
 import { BackendAuctionDetail } from "@/lib/types";
 import { getAuctionParticipantsClient, AuctionParticipantsResponse } from "@/services/auctionService";
 import { formatPrice } from "@/services/auctionService";
@@ -409,6 +410,7 @@ interface AuctionLeaderboardModalProps {
 
 export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: AuctionLeaderboardModalProps) {
   const { isConnected, leaderboardData, lastBid, timeExtension, auctionEnded, error, joinAuction, leaveAuction, clearLeaderboardData } = useAuctionSocket();
+  const { user } = useAuth();
 
   const [countdown, setCountdown] = useState<string>("00:00:00:00");
   const [showNewBidNotification, setShowNewBidNotification] = useState(false);
@@ -581,6 +583,22 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
   // DITAMBAH: Cek mount
   if (!isMounted) return null;
 
+  // Function to censor name - show first and last letter only
+  const censorName = (name: string) => {
+    if (!name || name.length <= 2) return name;
+
+    const words = name.trim().split(" ");
+    const censoredWords = words.map((word) => {
+      if (word.length <= 2) return word;
+      const firstLetter = word[0];
+      const lastLetter = word[word.length - 1];
+      const middle = "•".repeat(word.length - 2);
+      return `${firstLetter}${middle}${lastLetter}`;
+    });
+
+    return censoredWords.join(" ");
+  };
+
   // Use leaderboard data from WebSocket if available, otherwise use initial fetched data
   const participants = leaderboardData?.participants || initialData?.participants || [];
   const currentHighestBid = leaderboardData?.currentHighestBid || initialData?.currentHighestBid || auction.currentHighestBid || auction.startPrice;
@@ -709,7 +727,6 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Bid</th>
                   </tr>
                 </thead>
@@ -724,9 +741,6 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
                           <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
                           <div className="h-4 w-28 bg-gray-200 rounded animate-pulse"></div>
                         </td>
                       </tr>
@@ -735,6 +749,7 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
                     participants.map((participant, index) => {
                       const rank = index + 1;
                       const isHighestBidder = participant.isHighestBidder !== undefined ? participant.isHighestBidder : index === 0;
+                      const isCurrentUser = user?.email === participant.email;
 
                       return (
                         <tr key={participant.userId} className={`hover:bg-gray-50 transition-colors ${isHighestBidder ? "bg-green-50" : ""}`}>
@@ -752,12 +767,18 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
                             </div>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <span className="text-sm font-medium text-gray-900">{participant.name}</span>
-                              {isHighestBidder && <Award size={16} className="ml-2 text-green-600" />}
+                            <div className="flex items-center gap-2">
+                              {isCurrentUser ? (
+                                <>
+                                  <span className="text-sm font-semibold text-primary">{participant.name}</span>
+                                  <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full border border-primary/20">Anda</span>
+                                </>
+                              ) : (
+                                <span className="text-sm font-medium text-gray-600 tracking-wide">{censorName(participant.name)}</span>
+                              )}
+                              {isHighestBidder && <Award size={16} className="ml-1 text-green-600 flex-shrink-0" />}
                             </div>
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{participant.email}</td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <span className="text-sm font-semibold text-gray-900">{formatPrice(participant.highestBid)}</span>
                             <span className="block text-xs text-gray-500">{participant.totalBids} bid</span>
