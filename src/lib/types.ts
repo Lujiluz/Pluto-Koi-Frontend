@@ -612,12 +612,32 @@ export interface GeneralRulesApiResponse {
 }
 
 // Event types
+export interface TopBidder {
+  bidCount?: number;
+  totalBidAmount?: number;
+  bidAmount?: number;
+  bidTime?: string;
+  userId: string;
+  name: string;
+  email: string;
+}
+
+export interface TopBidders {
+  mostBidder: TopBidder | null;
+  highestBidder: TopBidder | null;
+  latestBidder: TopBidder | null;
+}
+
 export interface ActiveEvent {
-  _id: string;
-  isActive: boolean;
-  totalBidAmount: number;
-  createdAt: string;
-  updatedAt: string;
+  event: {
+    _id: string;
+    isActive: boolean;
+    totalBidAmount: number;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+  topBidders: TopBidders;
 }
 
 export interface ActiveEventApiResponse {
