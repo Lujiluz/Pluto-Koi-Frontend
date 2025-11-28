@@ -157,47 +157,13 @@ export function useWishlist(): UseWishlistReturn {
         });
 
         return true;
-      } else {
-        const errorMsg = "Gagal menambahkan item ke wishlist";
-        setError(errorMsg);
-        showToast({
-          type: "error",
-          title: "Gagal Menambahkan",
-          message: errorMsg,
-        });
-        return false;
       }
     } catch (err: any) {
       console.error("Error adding item to wishlist:", err);
-
-      // Handle different error cases
-      let errorMessage = err.message || "Gagal menambahkan item ke wishlist";
-      let errorTitle = "Gagal Menambahkan";
-
-      if (err.message?.includes("already exists")) {
-        errorTitle = "Item Sudah Ada";
-        errorMessage = "Item ini sudah ada di wishlist Anda";
-      } else if (err.message?.includes("not found")) {
-        errorTitle = "Item Tidak Ditemukan";
-        errorMessage = "Item yang Anda coba tambahkan tidak ditemukan";
-      } else if (err.message?.includes("inactive")) {
-        // Backend issue - auction might be marked as inactive incorrectly
-        errorTitle = "Tidak Dapat Ditambahkan";
-        errorMessage = "Terjadi masalah saat menambahkan ke wishlist. Silakan coba lagi nanti.";
-      } else if (err.message?.includes("expired") || err.message?.includes("ended")) {
-        errorTitle = "Lelang Berakhir";
-        errorMessage = "Lelang ini sudah berakhir dan tidak dapat ditambahkan ke wishlist";
-      }
-
-      setError(errorMessage);
-      showToast({
-        type: "error",
-        title: errorTitle,
-        message: errorMessage,
-      });
       return false;
     } finally {
       setIsAddingToWishlist(false);
+      return false
     }
   };
 

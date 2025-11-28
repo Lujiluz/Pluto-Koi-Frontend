@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
 import { CheckCircle, AlertTriangle, XCircle, Info, X } from "react-feather";
 
 // Toast types
@@ -56,6 +56,26 @@ export function ToastProvider({ children }: ToastProviderProps) {
   const clearAllToasts = useCallback(() => {
     setToasts([]);
   }, []);
+
+  // Listen to global API error events
+  useEffect(() => {
+    const handleApiError = (event: Event) => {
+      const customEvent = event as CustomEvent<{ message: string; status: number }>;
+      const { message } = customEvent.detail;
+
+      showToast({
+        type: "error",
+        title: "Gagal Memproses Permintaan",
+        message,
+      });
+    };
+
+    window.addEventListener("api-error", handleApiError);
+
+    return () => {
+      window.removeEventListener("api-error", handleApiError);
+    };
+  }, [showToast]);
 
   return (
     <ToastContext.Provider value={{ toasts, showToast, removeToast, clearAllToasts }}>
