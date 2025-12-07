@@ -144,11 +144,17 @@ export interface AuctionApiResponse {
   };
 }
 
+// Gallery type options
+export type GalleryType = "exclusive" | "regular";
+
 // Backend Gallery (from your API response)
 export interface BackendGallery {
   _id: string;
   galleryName: string;
+  galleryType: GalleryType;
   owner: string;
+  fishCode?: string;
+  fishType?: string;
   handling: string;
   folderName: string;
   isActive: boolean;

@@ -7,6 +7,9 @@ const GALLERY_ENDPOINTS = {
   GET_FOLDERS: "/gallery-folders/active/public",
 } as const;
 
+// Gallery type options
+export type GalleryType = "exclusive" | "regular";
+
 // Gallery query parameters interface
 export interface GalleryQueryParams {
   page?: number;
@@ -15,6 +18,7 @@ export interface GalleryQueryParams {
   folderName?: string;
   search?: string;
   isActive?: boolean;
+  galleryType?: GalleryType;
 }
 
 // Client-side gallery service (using axios with auth)
@@ -31,6 +35,7 @@ export const getGalleriesClient = async (params: GalleryQueryParams = {}): Promi
     if (params.owner) queryParams.append("owner", params.owner);
     if (params.folderName) queryParams.append("folderName", params.folderName);
     if (params.isActive !== undefined) queryParams.append("isActive", params.isActive.toString());
+    if (params.galleryType) queryParams.append("galleryType", params.galleryType);
 
     const response = await AxiosInstance.get(`${GALLERY_ENDPOINTS.GET_ALL}?${queryParams.toString()}`);
     return response.data;
@@ -56,6 +61,7 @@ export const getGalleriesServer = async (params: GalleryQueryParams = {}): Promi
     if (params.owner) queryParams.append("owner", params.owner);
     if (params.folderName) queryParams.append("folderName", params.folderName);
     if (params.isActive !== undefined) queryParams.append("isActive", params.isActive.toString());
+    if (params.galleryType) queryParams.append("galleryType", params.galleryType);
 
     const response = await fetch(`${baseUrl}${GALLERY_ENDPOINTS.GET_ALL}?${queryParams.toString()}`, {
       method: "GET",

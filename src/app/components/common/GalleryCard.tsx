@@ -6,16 +6,17 @@ import { BackendGallery } from "@/lib/types";
 import { formatOwnerName, getTotalMediaCount } from "@/services/galleryService";
 import { isVideoUrl } from "@/services/auctionService";
 import LiquidGlassContainer from "../ui/LiquidGlassContainer";
-import { Folder } from "react-feather";
+import { Folder, Star } from "react-feather";
 
 interface GalleryCardProps {
   gallery: BackendGallery;
   size?: "small" | "medium" | "large";
   className?: string;
   onClick?: (gallery: BackendGallery) => void;
+  viewMode?: "grid" | "list";
 }
 
-export default function GalleryCard({ gallery, size = "medium", className = "", onClick }: GalleryCardProps) {
+export default function GalleryCard({ gallery, size = "medium", className = "", onClick, viewMode = "grid" }: GalleryCardProps) {
   const [mediaError, setMediaError] = useState(false);
 
   const sizeClasses = {
@@ -59,10 +60,73 @@ export default function GalleryCard({ gallery, size = "medium", className = "", 
     }
   };
 
+  // List View Layout
+  if (viewMode === "list") {
+    return (
+      <div className={`flex bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer ${className}`} onClick={handleCardClick}>
+        {/* Media Preview */}
+        <div className="relative w-48 h-36 md:w-64 md:h-44 flex-shrink-0">
+          {renderMedia()}
+
+          {/* Gallery Type Badge */}
+          {gallery.galleryType === "exclusive" && (
+            <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs flex items-center space-x-1">
+              <Star size={12} fill="white" />
+              <span>Exclusive</span>
+            </div>
+          )}
+
+          {/* Folder Tag */}
+          {gallery.folderName && (
+            <div className="absolute bottom-2 left-2 bg-primary/90 text-white px-2 py-1 rounded-full text-xs flex items-center space-x-1">
+              <Folder size={12} />
+              <span>{gallery.folderName}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 p-4 md:p-6 flex flex-col justify-center">
+          <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">{gallery.galleryName}</h3>
+          <div className="space-y-1 text-sm text-gray-600">
+            <p>
+              <span className="font-medium">Owner:</span> {formatOwnerName(gallery.owner)}
+            </p>
+            {gallery.fishType && (
+              <p>
+                <span className="font-medium">Jenis:</span> {gallery.fishType}
+              </p>
+            )}
+            {gallery.fishCode && (
+              <p>
+                <span className="font-medium">Kode:</span> {gallery.fishCode}
+              </p>
+            )}
+            <p>
+              <span className="font-medium">Handling:</span> {gallery.handling}
+            </p>
+            <p>
+              <span className="font-medium">Media:</span> {getTotalMediaCount(gallery)} file
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Grid View Layout (default)
   return (
     <div className={`relative group overflow-hidden rounded-2xl ${sizeClasses[size]} ${className}`} onClick={handleCardClick} style={{ cursor: onClick ? "pointer" : "default" }}>
       {/* Background Media */}
       {renderMedia()}
+
+      {/* Gallery Type Badge - Exclusive */}
+      {gallery.galleryType === "exclusive" && (
+        <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm flex items-center space-x-1 z-10">
+          <Star size={14} fill="white" />
+          <span>Exclusive</span>
+        </div>
+      )}
 
       {/* Folder Tag */}
       {gallery.folderName && (
@@ -83,8 +147,13 @@ export default function GalleryCard({ gallery, size = "medium", className = "", 
               <h3 className="text-lg md:text-xl font-semibold mb-3">{gallery.galleryName}</h3>
               <div className="space-y-1 text-sm md:text-base">
                 <p className="opacity-90">
-                  <span className="font-medium">Owner:</span> {formatOwnerName(gallery.owner)} - {gallery.handling}
+                  <span className="font-medium">Owner:</span> {formatOwnerName(gallery.owner)}
                 </p>
+                {gallery.fishType && (
+                  <p className="opacity-90">
+                    <span className="font-medium">Jenis:</span> {gallery.fishType}
+                  </p>
+                )}
                 <p className="opacity-90">
                   <span className="font-medium">Handling:</span> {gallery.handling}
                 </p>

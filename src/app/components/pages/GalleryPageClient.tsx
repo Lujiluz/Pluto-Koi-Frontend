@@ -7,7 +7,8 @@ import { GalleryQueryParams } from "@/services/galleryService";
 import { GalleryApiResponse, BackendGallery } from "@/lib/types";
 import GalleryCard from "@/app/components/common/GalleryCard";
 import GalleryModal from "@/app/components/common/GalleryModal";
-import { RefreshCw, AlertCircle, Grid, Search, ChevronLeft, ChevronRight } from "react-feather";
+import { RefreshCw, AlertCircle, Grid, Search, ChevronLeft, ChevronRight, List as ListIcon } from "react-feather";
+import { GalleryType } from "@/lib/types";
 
 interface GalleryPageClientProps {
   initialData?: GalleryApiResponse | null;
@@ -21,6 +22,8 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [filterOwner, setFilterOwner] = useState("");
   const [filterFolder, setFilterFolder] = useState("");
+  const [filterGalleryType, setFilterGalleryType] = useState<GalleryType | "">("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const [queryParams, setQueryParams] = useState<GalleryQueryParams>({
     page: 1,
@@ -42,6 +45,7 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
     const owner = searchParams.get("owner");
     const folderName = searchParams.get("folderName");
     const search = searchParams.get("search");
+    const galleryType = searchParams.get("galleryType");
 
     if (page) {
       setQueryParams((prev) => ({ ...prev, page: parseInt(page) }));
@@ -58,6 +62,10 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
       setSearchQuery(search);
       setDebouncedSearchQuery(search);
       setQueryParams((prev) => ({ ...prev, search }));
+    }
+    if (galleryType === "exclusive" || galleryType === "regular") {
+      setFilterGalleryType(galleryType);
+      setQueryParams((prev) => ({ ...prev, galleryType }));
     }
   }, [searchParams]);
 
@@ -87,9 +95,12 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
     if (filterFolder) {
       newParams.folderName = filterFolder;
     }
+    if (filterGalleryType) {
+      newParams.galleryType = filterGalleryType;
+    }
 
     setQueryParams(newParams);
-  }, [debouncedSearchQuery, filterOwner, filterFolder]);
+  }, [debouncedSearchQuery, filterOwner, filterFolder, filterGalleryType]);
 
   const handleRefresh = () => {
     refreshGalleries.mutate(queryParams);
@@ -142,6 +153,7 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
     setDebouncedSearchQuery("");
     setFilterOwner("");
     setFilterFolder("");
+    setFilterGalleryType("");
     setQueryParams({
       page: 1,
       limit: 12,
@@ -197,7 +209,7 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
 
         {/* Search and Filter Bar */}
         <div className="mb-8 p-6 bg-gray-50 rounded-xl">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {/* Search by name */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -235,6 +247,17 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
               ))}
             </select>
 
+            {/* Filter by gallery type */}
+            <select
+              value={filterGalleryType}
+              onChange={(e) => setFilterGalleryType(e.target.value as GalleryType | "")}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+            >
+              <option value="">Semua Tipe</option>
+              <option value="exclusive">Exclusive</option>
+              <option value="regular">Regular</option>
+            </select>
+
             {/* Clear Filters */}
             <button onClick={clearFilters} className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
               Reset Filter
@@ -263,20 +286,33 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
           </div>
         ) : (
           <>
-            {/* Refresh Button */}
+            {/* Toolbar with View Mode and Refresh */}
             <div className="flex justify-between items-center mb-6">
               <p className="text-gray-600">
                 Menampilkan {galleries.length} dari {galleryData?.data.metadata.totalItems || 0} galeri
               </p>
-              <button onClick={handleRefresh} disabled={refreshGalleries.isPending} className="p-2 text-gray-500 hover:text-primary transition-colors disabled:opacity-50 cursor-pointer" title="Refresh galeri">
-                <RefreshCw size={20} className={refreshGalleries.isPending ? "animate-spin" : ""} />
-              </button>
+              <div className="flex items-center gap-4">
+                {/* View Mode Toggle */}
+                <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+                  <button onClick={() => setViewMode("grid")} className={`p-2 cursor-pointer transition-colors ${viewMode === "grid" ? "bg-primary text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`} title="Tampilan Grid">
+                    <Grid size={16} />
+                  </button>
+                  <button onClick={() => setViewMode("list")} className={`p-2 cursor-pointer transition-colors ${viewMode === "list" ? "bg-primary text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`} title="Tampilan List">
+                    <ListIcon size={16} />
+                  </button>
+                </div>
+
+                {/* Refresh Button */}
+                <button onClick={handleRefresh} disabled={refreshGalleries.isPending} className="p-2 text-gray-500 hover:text-primary transition-colors disabled:opacity-50 cursor-pointer" title="Refresh galeri">
+                  <RefreshCw size={20} className={refreshGalleries.isPending ? "animate-spin" : ""} />
+                </button>
+              </div>
             </div>
 
-            {/* Gallery Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            {/* Gallery Grid/List */}
+            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8" : "space-y-4 mb-8"}>
               {galleries.map((gallery) => (
-                <GalleryCard key={gallery._id} gallery={gallery} size="medium" onClick={handleGalleryClick} />
+                <GalleryCard key={gallery._id} gallery={gallery} size="medium" onClick={handleGalleryClick} viewMode={viewMode} />
               ))}
             </div>
 
