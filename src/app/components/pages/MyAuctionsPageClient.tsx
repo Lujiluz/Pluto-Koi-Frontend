@@ -6,15 +6,17 @@ import { useQuery } from "@tanstack/react-query";
 import { getMyAuctions, AuctionWithBidStatus } from "@/services/auctionActivityService";
 import UserAuctionCard from "../common/UserAuctionCard";
 import Footer from "../layout/public/Footer";
-import { Award, User, Mail, RefreshCw, AlertCircle, ArrowLeft, Search } from "react-feather";
+import { Award, User, Mail, RefreshCw, AlertCircle, ArrowLeft, Search, Grid, List as ListIcon } from "react-feather";
 import Link from "next/link";
 
 type BidStatusFilter = "all" | "winning" | "outbid";
+type ViewMode = "grid" | "list";
 
 export default function MyAuctionsPageClient() {
   const { isAuthenticated, user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [bidStatusFilter, setBidStatusFilter] = useState<BidStatusFilter>("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   // Fetch my auctions
   const {
@@ -121,10 +123,21 @@ export default function MyAuctionsPageClient() {
                       <Award size={24} />
                       Lelang yang Saya Ikuti
                     </h2>
-                    <button onClick={() => refetch()} disabled={isLoading} className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary/5 rounded-lg transition-colors">
-                      <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-                      Refresh
-                    </button>
+                    <div className="flex items-center gap-3">
+                      {/* View Mode Toggle */}
+                      <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+                        <button onClick={() => setViewMode("grid")} className={`p-2 transition-colors ${viewMode === "grid" ? "bg-primary text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`} title="Tampilan Grid">
+                          <Grid size={16} />
+                        </button>
+                        <button onClick={() => setViewMode("list")} className={`p-2 transition-colors ${viewMode === "list" ? "bg-primary text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`} title="Tampilan List">
+                          <ListIcon size={16} />
+                        </button>
+                      </div>
+                      <button onClick={() => refetch()} disabled={isLoading} className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary/5 rounded-lg transition-colors">
+                        <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+                        Refresh
+                      </button>
+                    </div>
                   </div>
 
                   {/* Filter Tabs */}
@@ -185,11 +198,11 @@ export default function MyAuctionsPageClient() {
                 </div>
               ) : (
                 <>
-                  {/* Auctions Grid */}
+                  {/* Auctions Grid/List */}
                   <div className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
                       {filteredAuctions.map((auctionItem: AuctionWithBidStatus) => (
-                        <UserAuctionCard key={auctionItem.auction._id} auction={auctionItem} onConfirmSuccess={handleConfirmSuccess} />
+                        <UserAuctionCard key={auctionItem.auction._id} auction={auctionItem} onConfirmSuccess={handleConfirmSuccess} viewMode={viewMode} />
                       ))}
                     </div>
                   </div>

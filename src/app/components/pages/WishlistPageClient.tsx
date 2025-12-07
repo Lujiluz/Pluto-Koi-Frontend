@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/hooks/useAuth";
-import { WishlistItem } from "@/lib/types";
+import { WishlistItem, BackendAuction } from "@/lib/types";
 import AuctionCard from "@/app/components/common/AuctionCard";
 import ProductCard from "@/app/components/common/ProductCard";
-import { RefreshCw, AlertCircle, Heart, Trash2, Package, Archive } from "react-feather";
+import { RefreshCw, AlertCircle, Heart, Trash2, Package, Archive, Grid, List as ListIcon } from "react-feather";
 import Link from "next/link";
 import Footer from "@/app/components/layout/public/Footer";
+import { getAuctionDetailClient } from "@/services/auctionService";
 
 export default function WishlistPageClient() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -16,6 +17,70 @@ export default function WishlistPageClient() {
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "auctions" | "products">("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  // State untuk menyimpan full auction data
+  const [fullAuctionData, setFullAuctionData] = useState<Record<string, BackendAuction>>({});
+  const [isLoadingAuctions, setIsLoadingAuctions] = useState(false);
+
+  // Ref untuk track auction IDs yang sudah di-fetch
+  const fetchedAuctionIdsRef = useRef<Set<string>>(new Set());
+
+  // Memoize auction item IDs untuk stable dependency
+  const auctionItemIds = useMemo(() => auctionItems.map((item) => item.itemId).join(","), [auctionItems]);
+
+  // Fetch full auction data untuk wishlist items yang tipe-nya auction
+  useEffect(() => {
+    const fetchAuctionDetails = async () => {
+      if (auctionItems.length === 0) {
+        return;
+      }
+
+      // Filter hanya auction yang belum di-fetch
+      const auctionsToFetch = auctionItems.filter((item) => !fetchedAuctionIdsRef.current.has(item.itemId));
+
+      if (auctionsToFetch.length === 0) {
+        return;
+      }
+
+      setIsLoadingAuctions(true);
+
+      // Fetch semua auction details secara parallel
+      const fetchPromises = auctionsToFetch.map(async (item) => {
+        try {
+          const response = await getAuctionDetailClient(item.itemId);
+          if (response.status === "success" && response.data) {
+            // Mark as fetched
+            fetchedAuctionIdsRef.current.add(item.itemId);
+            return { id: item.itemId, data: response.data };
+          }
+        } catch (err) {
+          console.error(`Error fetching auction ${item.itemId}:`, err);
+        }
+        return null;
+      });
+
+      const results = await Promise.all(fetchPromises);
+
+      // Update state dengan data baru
+      const newData: Record<string, BackendAuction> = {};
+      results.forEach((result) => {
+        if (result) {
+          newData[result.id] = result.data;
+        }
+      });
+
+      if (Object.keys(newData).length > 0) {
+        setFullAuctionData((prev) => ({ ...prev, ...newData }));
+      }
+
+      setIsLoadingAuctions(false);
+    };
+
+    if (isAuthenticated && !isLoading) {
+      fetchAuctionDetails();
+    }
+  }, [auctionItemIds, isAuthenticated, isLoading]);
 
   const handleRefresh = () => {
     refreshWishlist();
@@ -32,22 +97,30 @@ export default function WishlistPageClient() {
     await removeItemFromWishlist(itemId, itemType);
   };
 
-  // Convert wishlist items to auction format for AuctionCard
-  const convertWishlistToAuction = (item: WishlistItem) => ({
-    _id: item.itemId,
-    itemName: item.itemData.itemName,
-    startPrice: item.itemData.price,
-    endPrice: item.itemData.price,
-    startDate: new Date().toISOString(), // Placeholder
-    endDate: new Date().toISOString(), // Placeholder
-    highestBid: item.itemData.price,
-    media: [{ fileUrl: item.itemData.imageUrl, _id: "1" }],
-    createdAt: item.addedAt,
-    updatedAt: item.addedAt,
-    __v: 0,
-    currentHighestBid: item.itemData.price,
-    currentWinner: null,
-  });
+  // Get full auction data or fallback to minimal data
+  const getAuctionForCard = (item: WishlistItem): BackendAuction => {
+    // Prioritaskan full auction data dari API
+    if (fullAuctionData[item.itemId]) {
+      return fullAuctionData[item.itemId];
+    }
+
+    // Fallback ke data minimal (akan nunjukin loading atau placeholder state)
+    return {
+      _id: item.itemId,
+      itemName: item.itemData.itemName,
+      startPrice: item.itemData.price,
+      endPrice: item.itemData.price,
+      startDate: new Date().toISOString(),
+      endDate: new Date(Date.now() + 86400000).toISOString(), // Set 1 hari ke depan buat fallback
+      highestBid: item.itemData.price,
+      media: [{ fileUrl: item.itemData.imageUrl, _id: "1" }],
+      createdAt: item.addedAt,
+      updatedAt: item.addedAt,
+      __v: 0,
+      currentHighestBid: item.itemData.price,
+      currentWinner: null,
+    };
+  };
 
   // Convert wishlist items to product format for ProductCard
   const convertWishlistToProduct = (item: WishlistItem) => ({
@@ -179,16 +252,31 @@ export default function WishlistPageClient() {
 
         {/* Action Bar */}
         {displayItems.length > 0 && (
-          <div className="mb-8 flex justify-between items-center">
-            <button onClick={handleRefresh} disabled={isLoading} className="flex items-center px-4 py-2 text-gray-600 hover:text-primary transition-colors cursor-pointer disabled:opacity-50" title="Refresh wishlist">
-              <RefreshCw size={20} className={isLoading ? "animate-spin mr-2" : "mr-2"} />
-              Refresh
-            </button>
+          <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center gap-4">
+              <button onClick={handleRefresh} disabled={isLoading} className="flex items-center px-4 py-2 text-gray-600 hover:text-primary transition-colors cursor-pointer disabled:opacity-50" title="Refresh wishlist">
+                <RefreshCw size={20} className={isLoading ? "animate-spin mr-2" : "mr-2"} />
+                Refresh
+              </button>
+              <span className="text-sm text-gray-500">{displayItems.length} item</span>
+            </div>
 
-            <button onClick={() => setShowClearConfirm(true)} className="flex items-center px-4 py-2 text-red-600 hover:text-red-700 transition-colors cursor-pointer" title="Hapus semua item">
-              <Trash2 size={20} className="mr-2" />
-              Hapus Semua
-            </button>
+            <div className="flex items-center gap-4">
+              {/* View Mode Toggle */}
+              <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+                <button onClick={() => setViewMode("grid")} className={`p-2 transition-colors ${viewMode === "grid" ? "bg-primary text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`} title="Tampilan Grid">
+                  <Grid size={18} />
+                </button>
+                <button onClick={() => setViewMode("list")} className={`p-2 transition-colors ${viewMode === "list" ? "bg-primary text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`} title="Tampilan List">
+                  <ListIcon size={18} />
+                </button>
+              </div>
+
+              <button onClick={() => setShowClearConfirm(true)} className="flex items-center px-4 py-2 text-red-600 hover:text-red-700 transition-colors cursor-pointer" title="Hapus semua item">
+                <Trash2 size={20} className="mr-2" />
+                Hapus Semua
+              </button>
+            </div>
           </div>
         )}
 
@@ -219,30 +307,86 @@ export default function WishlistPageClient() {
           </div>
         )}
 
-        {/* Wishlist Grid */}
+        {/* Wishlist Grid/List */}
         {displayItems.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"}>
             {displayItems.map((item) => (
-              <div key={`${item.itemType}-${item.itemId}`} className="relative">
-                {item.itemType === "auction" ? <AuctionCard auction={convertWishlistToAuction(item)} /> : <ProductCard product={convertWishlistToProduct(item)} />}
+              <div key={`${item.itemType}-${item.itemId}`} className={`relative ${viewMode === "list" ? "bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex flex-row gap-3" : ""}`}>
+                {viewMode === "grid" ? (
+                  // Grid View
+                  <>
+                    {item.itemType === "auction" ? <AuctionCard auction={getAuctionForCard(item)} /> : <ProductCard product={convertWishlistToProduct(item)} />}
 
-                {/* Remove from wishlist button */}
-                <button
-                  onClick={() => handleRemoveItem(item.itemId, item.itemType)}
-                  disabled={isRemovingFromWishlist}
-                  className="absolute top-2 left-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors disabled:opacity-50 cursor-pointer z-10"
-                  title="Hapus dari wishlist"
-                >
-                  <Trash2 size={16} />
-                </button>
+                    {/* Remove from wishlist button */}
+                    <button
+                      onClick={() => handleRemoveItem(item.itemId, item.itemType)}
+                      disabled={isRemovingFromWishlist}
+                      className="absolute top-2 left-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors disabled:opacity-50 cursor-pointer z-10"
+                      title="Hapus dari wishlist"
+                    >
+                      <Trash2 size={16} />
+                    </button>
 
-                {/* Item type badge */}
-                <div className="absolute top-2 right-2 z-10">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${item.itemType === "auction" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}`}>{item.itemType === "auction" ? "Lelang" : "Produk"}</span>
-                </div>
+                    {/* Item type badge */}
+                    <div className="absolute top-2 right-2 z-10">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${item.itemType === "auction" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}`}>{item.itemType === "auction" ? "Lelang" : "Produk"}</span>
+                    </div>
 
-                {/* Added date */}
-                <div className="mt-2 text-xs text-gray-500 text-center">Ditambahkan {new Date(item.addedAt).toLocaleDateString("id-ID")}</div>
+                    {/* Added date */}
+                    <div className="mt-2 text-xs text-gray-500 text-center">Ditambahkan {new Date(item.addedAt).toLocaleDateString("id-ID")}</div>
+                  </>
+                ) : (
+                  // List View - Always horizontal layout
+                  <>
+                    {/* Image - Fixed small size */}
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                      <img
+                        src={item.itemData.imageUrl || "/images/koi/contoh_ikan.png"}
+                        alt={item.itemData.itemName}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/images/koi/contoh_ikan.png";
+                        }}
+                      />
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div>
+                        {/* Item type badge + Title row */}
+                        <div className="flex items-start gap-2 mb-1">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium flex-shrink-0 ${item.itemType === "auction" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}`}>
+                            {item.itemType === "auction" ? "Lelang" : "Produk"}
+                          </span>
+                        </div>
+                        <h3 className="text-sm sm:text-base font-semibold text-gray-900 line-clamp-1 mb-1">{item.itemData.itemName}</h3>
+                        <p className="text-primary font-bold text-base sm:text-lg">{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(item.itemData.price)}</p>
+                      </div>
+
+                      {/* Action Button */}
+                      <div className="mt-2">
+                        <a
+                          href={item.itemType === "auction" ? `/lelang/${item.itemId}` : `/belanja?product=${item.itemId}`}
+                          className="inline-block px-3 py-1.5 bg-primary text-white text-center rounded-lg hover:bg-primary/90 transition-colors text-xs sm:text-sm font-medium"
+                        >
+                          {item.itemType === "auction" ? "Lihat Lelang" : "Beli Sekarang"}
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Wishlist Heart Icon */}
+                    <div className="flex-shrink-0 self-start">
+                      <button
+                        onClick={() => handleRemoveItem(item.itemId, item.itemType)}
+                        disabled={isRemovingFromWishlist}
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
+                        title="Hapus dari wishlist"
+                      >
+                        <Heart size={20} fill="currentColor" />
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
