@@ -1,17 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
-import { getMyAuctions } from "@/services/auctionActivityService";
+import { getMyAuctions, AuctionWithBidStatus } from "@/services/auctionActivityService";
 import UserAuctionCard from "../common/UserAuctionCard";
 import Footer from "../layout/public/Footer";
 import { Award, User, Mail, RefreshCw, AlertCircle, ArrowLeft, Search } from "react-feather";
 import Link from "next/link";
 
+type BidStatusFilter = "all" | "winning" | "outbid";
+
 export default function MyAuctionsPageClient() {
   const { isAuthenticated, user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
+  const [bidStatusFilter, setBidStatusFilter] = useState<BidStatusFilter>("all");
 
   // Fetch my auctions
   const {
@@ -30,6 +33,43 @@ export default function MyAuctionsPageClient() {
     // Refetch auctions after successful confirmation
     refetch();
   };
+
+  // Helper function to check if user is the highest bidder
+  // We compare user's highest bid with the current highest bid of the auction
+  const isUserHighestBidder = (item: AuctionWithBidStatus): boolean => {
+    return item.userBidInfo.highestBid >= item.currentHighestBid && item.userBidInfo.highestBid > 0;
+  };
+
+  // Filter auctions based on bid status
+  const filteredAuctions = useMemo(() => {
+    if (!auctionsData?.data?.auctions) return [];
+
+    const auctions = auctionsData.data.auctions;
+
+    switch (bidStatusFilter) {
+      case "winning":
+        return auctions.filter((item: AuctionWithBidStatus) => isUserHighestBidder(item));
+      case "outbid":
+        return auctions.filter((item: AuctionWithBidStatus) => !isUserHighestBidder(item));
+      default:
+        return auctions;
+    }
+  }, [auctionsData?.data?.auctions, bidStatusFilter]);
+
+  // Count for filter badges
+  const filterCounts = useMemo(() => {
+    if (!auctionsData?.data?.auctions) return { all: 0, winning: 0, outbid: 0 };
+
+    const auctions = auctionsData.data.auctions;
+    const winning = auctions.filter((item: AuctionWithBidStatus) => isUserHighestBidder(item)).length;
+    const outbid = auctions.filter((item: AuctionWithBidStatus) => !isUserHighestBidder(item)).length;
+
+    return {
+      all: auctions.length,
+      winning,
+      outbid,
+    };
+  }, [auctionsData?.data?.auctions]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -75,15 +115,39 @@ export default function MyAuctionsPageClient() {
             {/* Auctions List */}
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
               <div className="p-6 border-b bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <Award size={24} />
-                    Lelang yang Saya Ikuti
-                  </h2>
-                  <button onClick={() => refetch()} disabled={isLoading} className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary/5 rounded-lg transition-colors">
-                    <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-                    Refresh
-                  </button>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                      <Award size={24} />
+                      Lelang yang Saya Ikuti
+                    </h2>
+                    <button onClick={() => refetch()} disabled={isLoading} className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary/5 rounded-lg transition-colors">
+                      <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+                      Refresh
+                    </button>
+                  </div>
+
+                  {/* Filter Tabs */}
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setBidStatusFilter("all")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${bidStatusFilter === "all" ? "bg-primary text-white" : "bg-white text-gray-600 hover:bg-gray-100 border"}`}
+                    >
+                      Semua ({filterCounts.all})
+                    </button>
+                    <button
+                      onClick={() => setBidStatusFilter("winning")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${bidStatusFilter === "winning" ? "bg-green-600 text-white" : "bg-white text-gray-600 hover:bg-gray-100 border"}`}
+                    >
+                      🏆 Tertinggi ({filterCounts.winning})
+                    </button>
+                    <button
+                      onClick={() => setBidStatusFilter("outbid")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${bidStatusFilter === "outbid" ? "bg-red-600 text-white" : "bg-white text-gray-600 hover:bg-gray-100 border"}`}
+                    >
+                      ⚠️ Terkalahkan ({filterCounts.outbid})
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -110,12 +174,21 @@ export default function MyAuctionsPageClient() {
                     Lihat Lelang
                   </Link>
                 </div>
+              ) : filteredAuctions.length === 0 ? (
+                <div className="p-12 text-center">
+                  <Award size={48} className="mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">{bidStatusFilter === "winning" ? "Tidak Ada Lelang dengan Bid Tertinggi" : "Tidak Ada Lelang yang Terkalahkan"}</h3>
+                  <p className="text-gray-600 mb-6">{bidStatusFilter === "winning" ? "Anda belum menjadi penawar tertinggi di lelang manapun." : "Selamat! Anda masih menjadi penawar tertinggi di semua lelang."}</p>
+                  <button onClick={() => setBidStatusFilter("all")} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    Lihat Semua Lelang
+                  </button>
+                </div>
               ) : (
                 <>
                   {/* Auctions Grid */}
                   <div className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {auctionsData.data.auctions.map((auctionItem) => (
+                      {filteredAuctions.map((auctionItem: AuctionWithBidStatus) => (
                         <UserAuctionCard key={auctionItem.auction._id} auction={auctionItem} onConfirmSuccess={handleConfirmSuccess} />
                       ))}
                     </div>

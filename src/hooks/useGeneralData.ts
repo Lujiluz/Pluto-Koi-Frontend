@@ -72,8 +72,10 @@ export function useGeneralData(): UseGeneralDataReturn {
       const response = await getActiveEvent();
 
       if (response.status === "success") {
-        // response.data can be null if no active event
-        setActiveEvent(response.data);
+        // Check if data is empty object (no active event)
+        // response.data can be {} or null if no active event
+        const hasActiveEvent = response.data && Object.keys(response.data).length > 0 && response.data.event;
+        setActiveEvent(hasActiveEvent ? response.data : null);
       } else {
         setActiveEvent(null);
         setEventError("Failed to fetch active event");
