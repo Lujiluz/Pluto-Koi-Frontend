@@ -78,13 +78,13 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
 
   const renderMedia = () => {
     if (mediaError) {
-      return <Image src="/images/products/produk_koi.png" alt={normalizedProduct.name} fill className="object-cover" />;
+      return <Image src="/images/products/produk_koi.png" alt={normalizedProduct.name} fill className="object-contain" />;
     }
 
     if (normalizedProduct.isVideo) {
-      return <video src={normalizedProduct.image} className="w-full h-full object-cover" muted autoPlay loop playsInline onError={() => setMediaError(true)} />;
+      return <video src={normalizedProduct.image} className="w-full h-full object-contain" muted loop playsInline onError={() => setMediaError(true)} />;
     } else {
-      return <Image src={normalizedProduct.image} alt={normalizedProduct.name} fill className="object-cover" onError={() => setMediaError(true)} />;
+      return <Image src={normalizedProduct.image} alt={normalizedProduct.name} fill className="object-contain" onError={() => setMediaError(true)} />;
     }
   };
 
@@ -95,8 +95,10 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
     return (
       <>
         <div className={`card-hover overflow-hidden ${className}`}>
-          {/* Product Image */}
-          <div className="relative h-32 w-32 md:h-40 md:w-40 flex-shrink-0 overflow-hidden">{renderMedia()}</div>
+          {/* Product Image - 3:2 aspect ratio */}
+          <div className="relative w-32 md:w-40 flex-shrink-0 overflow-hidden bg-gray-100" style={{ aspectRatio: "3/2" }}>
+            {renderMedia()}
+          </div>
 
           {/* Product Content */}
           <div className="flex-1 p-4 flex flex-col justify-between">
@@ -129,8 +131,10 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
   return (
     <>
       <div className={`card-hover overflow-hidden relative ${className}`}>
-        {/* Product Image */}
-        <div className="relative h-48 md:h-56 lg:h-64 overflow-hidden">{renderMedia()}</div>
+        {/* Product Image - 3:2 aspect ratio */}
+        <div className="relative w-full overflow-hidden bg-gray-100" style={{ aspectRatio: "3/2" }}>
+          {renderMedia()}
+        </div>
 
         {/* Product Content */}
         <div className="p-6">

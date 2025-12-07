@@ -134,17 +134,16 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
 
     // If media error, always show fallback image
     if (mediaError) {
-      return <Image src="/images/koi/contoh_ikan.png" alt={normalizedAuction.title} fill className="object-cover rounded-lg" />;
+      return <Image src="/images/koi/contoh_ikan.png" alt={normalizedAuction.title} fill className="object-contain rounded-lg" />;
     }
 
     if (isVideo) {
       return (
         <video
           src={mediaUrl}
-          className="w-full h-full object-cover rounded-lg"
+          className="w-full h-full object-contain rounded-lg"
           controls={false}
           muted
-          autoPlay
           loop
           playsInline
           onError={() => {
@@ -159,7 +158,7 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
           src={mediaUrl}
           alt={normalizedAuction.title}
           fill
-          className="object-cover rounded-lg"
+          className="object-contain rounded-lg"
           onError={() => {
             console.warn(`Image failed to load: ${mediaUrl}`);
             setMediaError(true);
@@ -171,8 +170,8 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
 
   return (
     <div className="card-hover overflow-hidden">
-      {/* Media (Image or Video) */}
-      <div className="relative h-48 mb-4">
+      {/* Media (Image or Video) - 3:2 aspect ratio */}
+      <div className="relative w-full mb-4 bg-gray-100 rounded-lg" style={{ aspectRatio: "3/2" }}>
         {renderMedia()}
         {getStatusBadge()}
 

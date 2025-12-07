@@ -312,7 +312,7 @@ export default function GalleryPageClient({ initialData }: GalleryPageClientProp
             {/* Gallery Grid/List */}
             <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8" : "space-y-4 mb-8"}>
               {galleries.map((gallery) => (
-                <GalleryCard key={gallery._id} gallery={gallery} size="medium" onClick={handleGalleryClick} viewMode={viewMode} />
+                <GalleryCard key={gallery._id} gallery={gallery} onClick={handleGalleryClick} viewMode={viewMode} />
               ))}
             </div>
 

@@ -74,17 +74,16 @@ export default function UserAuctionCard({ auction, onConfirmSuccess, viewMode = 
 
     // If media error, always show fallback image
     if (mediaError) {
-      return <Image src="/images/koi/contoh_ikan.png" alt={auction.auction.itemName} fill className="object-cover rounded-lg" />;
+      return <Image src="/images/koi/contoh_ikan.png" alt={auction.auction.itemName} fill className="object-contain rounded-lg" />;
     }
 
     if (isVideo) {
       return (
         <video
           src={mediaUrl}
-          className="w-full h-full object-cover rounded-lg"
+          className="w-full h-full object-contain rounded-lg"
           controls={false}
           muted
-          autoPlay
           loop
           playsInline
           onError={() => {
@@ -99,7 +98,7 @@ export default function UserAuctionCard({ auction, onConfirmSuccess, viewMode = 
           src={mediaUrl}
           alt={auction.auction.itemName}
           fill
-          className="object-cover rounded-lg"
+          className="object-contain rounded-lg"
           onError={() => {
             console.warn(`Image failed to load: ${mediaUrl}`);
             setMediaError(true);
@@ -132,8 +131,8 @@ export default function UserAuctionCard({ auction, onConfirmSuccess, viewMode = 
   // Grid View Layout
   const renderGridView = () => (
     <div className="card-hover overflow-hidden">
-      {/* Media (Image or Video) */}
-      <div className="relative h-48 mb-4">
+      {/* Media (Image or Video) - 3:2 aspect ratio */}
+      <div className="relative w-full mb-4 bg-gray-100 rounded-lg" style={{ aspectRatio: "3/2" }}>
         {renderMedia()}
         {getStatusBadge()}
 
@@ -214,8 +213,8 @@ export default function UserAuctionCard({ auction, onConfirmSuccess, viewMode = 
   // List View Layout - Always horizontal, compact on mobile
   const renderListView = () => (
     <div className="card-hover overflow-hidden flex flex-row gap-3 p-3">
-      {/* Media (Image or Video) - Fixed small size */}
-      <div className="relative w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0 rounded-lg overflow-hidden">
+      {/* Media (Image or Video) - 3:2 aspect ratio */}
+      <div className="relative w-24 sm:w-32 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100" style={{ aspectRatio: "3/2" }}>
         {renderMedia()}
         {getStatusBadge(true)}
       </div>

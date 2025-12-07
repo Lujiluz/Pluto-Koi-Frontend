@@ -127,7 +127,7 @@ export default function GallerySectionClient() {
                     className = "md:col-span-1";
                 }
 
-                return <GalleryCard key={gallery._id} gallery={gallery} size="medium" className={className} />;
+                return <GalleryCard key={gallery._id} gallery={gallery} className={className} />;
               })}
             </div>
           </>
