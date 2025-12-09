@@ -62,7 +62,7 @@ export default function ActiveEventBanner() {
         <div className="flex items-center justify-center space-x-3 mb-3">
           <div className="flex items-center space-x-2">
             <TrendingUp size={20} className="text-green-100" />
-            <span className="font-medium text-sm sm:text-base">Total Bid Event:</span>
+            <span className="font-medium text-sm sm:text-base">Total Omzet Lelang:</span>
           </div>
           <div className="text-lg sm:text-xl font-bold">{formatPrice(event.totalBidAmount)}</div>
           <div className="hidden sm:flex items-center space-x-1 text-green-100 text-sm">

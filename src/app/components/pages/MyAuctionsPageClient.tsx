@@ -158,7 +158,7 @@ export default function MyAuctionsPageClient() {
                       onClick={() => setBidStatusFilter("outbid")}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${bidStatusFilter === "outbid" ? "bg-red-600 text-white" : "bg-white text-gray-600 hover:bg-gray-100 border"}`}
                     >
-                      ⚠️ Terkalahkan ({filterCounts.outbid})
+                      ⚠️ Terlampaui ({filterCounts.outbid})
                     </button>
                   </div>
                 </div>

@@ -20,7 +20,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 w-full items-center gap-8 lg:gap-0">
             {/* Hero Image */}
             <div className="hidden lg:block">
-              <Image src="/hero/hero-complement.png" alt="Koi Fish Foreground" width={545} height={522} priority />
+              <Image src="/hero/hero-complement.png" alt="Koi Fish Mascot" width={545} height={522} priority />
             </div>
 
             {/* Hero Text with Liquid Glass */}
