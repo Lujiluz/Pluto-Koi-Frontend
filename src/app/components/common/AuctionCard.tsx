@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 interface AuctionCardProps {
   auction: AuctionData | BackendAuction;
+  viewMode?: "grid" | "list";
 }
 
 // Type guard to check if auction is from backend
@@ -20,7 +21,7 @@ const isBackendAuction = (auction: AuctionData | BackendAuction): auction is Bac
   return "_id" in auction;
 };
 
-export default function AuctionCard({ auction }: AuctionCardProps) {
+export default function AuctionCard({ auction, viewMode = "grid" }: AuctionCardProps) {
   const [mediaError, setMediaError] = useState(false);
   const { isAuthenticated } = useAuth();
   const { isInWishlist, addItemToWishlist, removeItemFromWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
@@ -128,20 +129,21 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
     return images && images.length > 0 ? images[0] : "/images/koi/contoh_ikan.png";
   };
 
-  const renderMedia = () => {
+  const renderMedia = (useContain: boolean = true) => {
     const mediaUrl = getFirstMediaUrl();
     const isVideo = isVideoUrl(mediaUrl);
+    const objectFit = useContain ? "object-contain" : "object-cover";
 
     // If media error, always show fallback image
     if (mediaError) {
-      return <Image src="/images/koi/contoh_ikan.png" alt={normalizedAuction.title} fill className="object-contain rounded-lg" />;
+      return <Image src="/images/koi/contoh_ikan.png" alt={normalizedAuction.title} fill className={`${objectFit} rounded-lg`} />;
     }
 
     if (isVideo) {
       return (
         <video
           src={mediaUrl}
-          className="w-full h-full object-contain rounded-lg"
+          className={`w-full h-full ${objectFit} rounded-lg`}
           controls={false}
           muted
           loop
@@ -158,7 +160,7 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
           src={mediaUrl}
           alt={normalizedAuction.title}
           fill
-          className="object-contain rounded-lg"
+          className={`${objectFit} rounded-lg`}
           onError={() => {
             console.warn(`Image failed to load: ${mediaUrl}`);
             setMediaError(true);
@@ -168,6 +170,66 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
     }
   };
 
+  // List View Layout
+  if (viewMode === "list") {
+    return (
+      <div className="flex bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+        {/* Media (Image or Video) - Smaller size like ProductCard */}
+        <div className="relative w-32 md:w-40 flex-shrink-0 bg-gray-100 overflow-hidden" style={{ aspectRatio: "3/2" }}>
+          {renderMedia(true)}
+          {/* Status Badge - Smaller for list view */}
+          <div className="absolute top-1 left-1 text-[10px]">
+            {isAuctionEnded ? (
+              <span className="bg-gray-500 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">Selesai</span>
+            ) : timeRemaining.hours < 1 ? (
+              <span className="bg-green-500 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">Segera</span>
+            ) : (
+              <span className="bg-primary text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
+                {formatTime(timeRemaining.hours)}:{formatTime(timeRemaining.minutes)}:{formatTime(timeRemaining.seconds)}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 p-3 md:p-4 flex flex-col justify-between">
+          <div className="space-y-2">
+            {/* Title and Wishlist */}
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="text-sm md:text-base font-semibold text-black line-clamp-1">{normalizedAuction.title}</h3>
+              <WishlistButton isInWishlist={itemInWishlist} isLoading={isWishlistLoading} onToggle={handleWishlistToggle} size={16} />
+            </div>
+
+            {/* Price Info - Compact */}
+            <div className="space-y-0.5 text-xs text-gray-600">
+              <p>
+                <span className="font-medium">Mulai:</span> {formatPriceDisplay(normalizedAuction.startingPrice)}
+              </p>
+              <p>
+                <span className="font-medium">Tertinggi:</span> {formatPriceDisplay(normalizedAuction.highestBid)}
+              </p>
+              {isBackendAuction(auction) && auction.currentWinner ? (
+                <p className="line-clamp-1">
+                  <span className="font-medium">Pemenang:</span> {auction.currentWinner.userId.name}
+                </p>
+              ) : (
+                <p>
+                  <span className="font-medium">Bid:</span> {normalizedAuction.bidCount.toLocaleString("id-ID")} orang
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Action Button */}
+          <Link href={`/lelang/${normalizedAuction.id}`} className="mt-2 block w-full py-2 px-3 rounded-lg font-medium text-xs transition-colors text-center bg-primary hover:bg-primary-600 text-white">
+            Detail
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Grid View Layout (default)
   return (
     <div className="card-hover overflow-hidden">
       {/* Media (Image or Video) - 3:2 aspect ratio */}

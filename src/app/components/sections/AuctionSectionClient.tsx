@@ -6,6 +6,7 @@ import { useInfiniteAuctions, useRefreshAuctions } from "@/hooks/useAuctions";
 import AuctionCard from "../common/AuctionCard";
 import GeneralRulesSection from "../common/GeneralRulesSection";
 import ActiveEventBanner from "../common/ActiveEventBanner";
+import { Grid, List as ListIcon, RefreshCw } from "react-feather";
 
 interface AuctionSectionClientProps {
   initialData?: AuctionApiResponse;
@@ -13,6 +14,7 @@ interface AuctionSectionClientProps {
 
 export default function AuctionSectionClient({ initialData }: AuctionSectionClientProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Use TanStack Query infinite scroll for data fetching
   const { data, isLoading, error, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteAuctions(8);
@@ -156,18 +158,36 @@ export default function AuctionSectionClient({ initialData }: AuctionSectionClie
                   <span>Total Lelang: {statistics.totalAuctions}</span>
                   <span>Aktif: {statistics.activeAuctions}</span>
                   <span>Selesai: {statistics.completedAuctions}</span>
-                  <button onClick={handleRefresh} disabled={refreshAuctions.isPending} className="text-primary hover:text-primary/80 font-medium transition-colors text-xs" title="Segarkan data lelang">
-                    {refreshAuctions.isPending ? "⟳ Menyegarkan..." : "⟳ Segarkan"}
-                  </button>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Auction Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Toolbar with View Mode and Refresh */}
+          <div className="flex justify-between items-center mb-6">
+            <p className="text-gray-600">Menampilkan {allAuctions.length} lelang</p>
+            <div className="flex items-center gap-4">
+              {/* View Mode Toggle */}
+              <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+                <button onClick={() => setViewMode("grid")} className={`p-2 cursor-pointer transition-colors ${viewMode === "grid" ? "bg-primary text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`} title="Tampilan Grid">
+                  <Grid size={16} />
+                </button>
+                <button onClick={() => setViewMode("list")} className={`p-2 cursor-pointer transition-colors ${viewMode === "list" ? "bg-primary text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`} title="Tampilan List">
+                  <ListIcon size={16} />
+                </button>
+              </div>
+
+              {/* Refresh Button */}
+              <button onClick={handleRefresh} disabled={refreshAuctions.isPending} className="p-2 text-gray-500 hover:text-primary transition-colors disabled:opacity-50 cursor-pointer" title="Segarkan data lelang">
+                <RefreshCw size={20} className={refreshAuctions.isPending ? "animate-spin" : ""} />
+              </button>
+            </div>
+          </div>
+
+          {/* Auction Grid/List */}
+          <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" : "space-y-4"}>
             {allAuctions.map((auction) => (
-              <AuctionCard key={auction._id} auction={auction} />
+              <AuctionCard key={auction._id} auction={auction} viewMode={viewMode} />
             ))}
           </div>
 
