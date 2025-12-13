@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { formatCurrency, getTimeRemaining } from "@/lib/utils";
 import { AuctionWithBidStatus } from "@/services/auctionActivityService";
 import { getAuctionStatus, formatPrice, getTimeRemainingObject, isVideoUrl } from "@/services/auctionService";
@@ -189,6 +190,11 @@ export default function UserAuctionCard({ auction, onConfirmSuccess, viewMode = 
 
         {/* Action Buttons */}
         <div className="space-y-2">
+          {/* Detail Button */}
+          <Link href={`/lelang/${auction.auction._id}`} className="w-full py-3 px-4 rounded-lg font-medium text-sm transition-colors text-center bg-primary hover:bg-primary/90 text-white flex items-center justify-center gap-2">
+            Lihat Detail Lelang
+          </Link>
+
           {/* Leaderboard Button */}
           <button onClick={() => setIsLeaderboardModalOpen(true)} className="w-full py-3 px-4 rounded-lg font-medium text-sm transition-colors text-center bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center gap-2">
             <Award size={16} />
@@ -252,6 +258,9 @@ export default function UserAuctionCard({ auction, onConfirmSuccess, viewMode = 
 
         {/* Bottom: Action Button */}
         <div className="flex items-center gap-2 mt-2">
+          <Link href={`/lelang/${auction.auction._id}`} className="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors bg-primary hover:bg-primary/90 text-white flex items-center gap-1">
+            Detail
+          </Link>
           <button onClick={() => setIsLeaderboardModalOpen(true)} className="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1">
             <Award size={12} />
             Leaderboard

@@ -97,9 +97,9 @@ export default function MyAuctionsPageClient() {
 
         {isAuthenticated ? (
           // Authenticated User - Show My Auctions
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* User Info Card */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
                   <User size={24} className="text-white" />
@@ -115,8 +115,8 @@ export default function MyAuctionsPageClient() {
             </div>
 
             {/* Auctions List */}
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-              <div className="p-6 border-b bg-gray-50">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="p-6 bg-gray-50">
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">

@@ -112,6 +112,7 @@ export interface PlaceBidRequest {
 export interface PlaceBidResponse {
   success: boolean;
   message: string;
+  status: string;
   data: {
     auctionActivity: {
       _id: string;

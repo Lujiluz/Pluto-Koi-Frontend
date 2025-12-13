@@ -142,7 +142,7 @@ export default function BidModal({ isOpen, onClose, auction, onSuccess }: BidMod
         bidType: "initial",
       });
 
-      if (response.success) {
+      if (response.status === "success") {
         showToast({
           type: "success",
           title: "Bid Berhasil!",
