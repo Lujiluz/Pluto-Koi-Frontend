@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { X, Eye, EyeOff, AlertCircle, XCircle } from "react-feather";
+import { useState, useEffect } from "react";
+import { X, Eye, EyeOff, AlertCircle, XCircle, CheckCircle } from "react-feather";
 import { loginUser, validateEmail, validatePassword } from "@/services/authService";
 
 interface LoginModalProps {
@@ -9,6 +9,7 @@ interface LoginModalProps {
   onClose: () => void;
   onSwitchToRegister: () => void;
   onSuccess?: () => void;
+  showVerifiedMessage?: boolean; // Show success message when user just verified their account
 }
 
 interface ValidationErrors {
@@ -17,7 +18,7 @@ interface ValidationErrors {
   general?: string;
 }
 
-export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSuccess }: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSuccess, showVerifiedMessage = false }: LoginModalProps) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -27,6 +28,12 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSucc
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showVerified, setShowVerified] = useState(showVerifiedMessage);
+
+  // Update showVerified when prop changes
+  useEffect(() => {
+    setShowVerified(showVerifiedMessage);
+  }, [showVerifiedMessage]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -75,6 +82,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSucc
       if (response.status === "success") {
         // Login successful
         console.log("Login successful:", response.data);
+        setShowVerified(false); // Clear verified message
 
         // Reset form
         setFormData({
@@ -93,11 +101,32 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSucc
         // Then close modal
         onClose();
       } else {
-        // Login failed
+        // Login failed - handle specific approval-related errors
         console.log("Login failed:", response.error);
-        setErrors({
-          general: response.error || "Login failed. Please try again.",
-        });
+        const errorMessage = response.error || "Login failed. Please try again.";
+
+        // Check for specific error messages from backend
+        if (errorMessage.toLowerCase().includes("pending approval") || errorMessage.toLowerCase().includes("pending")) {
+          setErrors({
+            general: "Akun Anda masih menunggu persetujuan admin. Silakan tunggu email konfirmasi.",
+          });
+        } else if (errorMessage.toLowerCase().includes("rejected") || errorMessage.toLowerCase().includes("ditolak")) {
+          setErrors({
+            general: "Pendaftaran Anda ditolak. Silakan hubungi support untuk informasi lebih lanjut.",
+          });
+        } else if (errorMessage.toLowerCase().includes("blocked") || errorMessage.toLowerCase().includes("banned")) {
+          setErrors({
+            general: "Akun Anda telah diblokir. Silakan hubungi support.",
+          });
+        } else if (errorMessage.toLowerCase().includes("deleted") || errorMessage.toLowerCase().includes("dihapus")) {
+          setErrors({
+            general: "Akun ini telah dihapus.",
+          });
+        } else {
+          setErrors({
+            general: errorMessage,
+          });
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -146,6 +175,14 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSucc
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Verified Success Message */}
+          {showVerified && (
+            <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+              <CheckCircle size={16} className="flex-shrink-0" />
+              <span>✅ Akun Anda telah diverifikasi! Silakan login untuk melanjutkan.</span>
+            </div>
+          )}
+
           {/* General Error Message */}
           {errors.general && (
             <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">

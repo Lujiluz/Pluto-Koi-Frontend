@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams, useRouter } from "next/navigation";
 import { NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { LogOut, User, Heart, ChevronDown, Package, ShoppingBag, Award } from "react-feather";
@@ -16,8 +17,23 @@ export default function Header() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, logout, refreshAuth } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Check for verified=true query param on mount
+  useEffect(() => {
+    if (searchParams.get("verified") === "true") {
+      setShowVerifiedMessage(true);
+      setIsLoginModalOpen(true);
+      // Clean up the URL by removing the query param
+      const url = new URL(window.location.href);
+      url.searchParams.delete("verified");
+      router.replace(url.pathname, { scroll: false });
+    }
+  }, [searchParams, router]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -50,6 +66,7 @@ export default function Header() {
   const closeModals = () => {
     setIsRegisterModalOpen(false);
     setIsLoginModalOpen(false);
+    setShowVerifiedMessage(false); // Reset verified message when closing
   };
 
   const switchToLogin = () => {
@@ -266,7 +283,7 @@ export default function Header() {
 
       {/* Modals */}
       <RegisterModal isOpen={isRegisterModalOpen} onClose={closeModals} onSwitchToLogin={switchToLogin} onSuccess={handleAuthSuccess} />
-      <LoginModal isOpen={isLoginModalOpen} onClose={closeModals} onSwitchToRegister={switchToRegister} onSuccess={handleAuthSuccess} />
+      <LoginModal isOpen={isLoginModalOpen} onClose={closeModals} onSwitchToRegister={switchToRegister} onSuccess={handleAuthSuccess} showVerifiedMessage={showVerifiedMessage} />
     </header>
   );
 }

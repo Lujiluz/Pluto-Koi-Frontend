@@ -40,12 +40,42 @@ export interface RegisterRequest {
   };
 }
 
+// Approval Status for user registration flow
+export type ApprovalStatus = "pending" | "approved" | "rejected";
+
 export interface AuthResponse {
   status: string;
   message?: string;
   data?: {
-    user: User;
-    token: string;
+    user: User & { approvalStatus?: ApprovalStatus };
+    token?: string; // Token is optional, not provided for pending users
+  };
+  error?: string;
+}
+
+// Specific response for registration (no token for pending users)
+export interface RegisterResponse {
+  status: string;
+  message?: string;
+  data?: {
+    user: {
+      _id: string;
+      name: string;
+      email: string;
+      phoneNumber: string;
+      role: string;
+      status: string;
+      approvalStatus: ApprovalStatus;
+      address: {
+        street: string;
+        city: string;
+        state: string;
+        zipCode: string;
+        country: string;
+      };
+      createdAt: string;
+      updatedAt: string;
+    };
   };
   error?: string;
 }

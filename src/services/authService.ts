@@ -98,6 +98,8 @@ export const loginUser = async (credentials: LoginRequest): Promise<AuthResponse
 };
 
 // Register service
+// Note: With the new approval flow, registered users will have approvalStatus: "pending"
+// and will NOT receive a token. They must wait for admin approval and email verification.
 export const registerUser = async (userRegistrationData: RegisterRequest): Promise<AuthResponse> => {
   try {
     const response = await AxiosInstance.post(AUTH_ENDPOINTS.REGISTER, {
@@ -119,43 +121,14 @@ export const registerUser = async (userRegistrationData: RegisterRequest): Promi
 
     // Handle successful response - check for either success field or status
     const isSuccess = response.data.success === true || response.data.status === "success";
-    const tokenData = response.data.data?.token || response.data.token;
     const userData = response.data.data?.user || response.data.user;
 
-    if (isSuccess && tokenData) {
-      // Check if localStorage is available
-      if (typeof window !== "undefined" && window.localStorage) {
-        // Store token in localStorage
-        console.log("Storing token in localStorage:", tokenData);
-        try {
-          localStorage.setItem("authToken", tokenData);
-          localStorage.setItem("user", JSON.stringify(userData));
-
-          // Verify storage immediately
-          const storedToken = localStorage.getItem("authToken");
-          const storedUser = localStorage.getItem("user");
-          console.log("Token stored successfully:", storedToken === tokenData);
-          console.log("User stored successfully:", !!storedUser);
-        } catch (storageError) {
-          console.error("localStorage error:", storageError);
-          return {
-            status: "error",
-            error: "Failed to store authentication data. Please check if localStorage is enabled.",
-          };
-        }
-      } else {
-        console.error("localStorage not available");
-        return {
-          status: "error",
-          error: "Browser storage not available. Please enable localStorage.",
-        };
-      }
-    } else {
-      console.log("Registration failed - no token received or not successful", {
-        isSuccess,
-        tokenData,
+    // Note: With the new approval flow, token is NOT provided for pending users
+    // User must wait for admin approval and click the verification link in email
+    if (isSuccess) {
+      console.log("Registration successful - user is pending approval", {
         userData,
-        fullResponse: response.data,
+        approvalStatus: userData?.approvalStatus,
       });
     }
 
@@ -163,7 +136,7 @@ export const registerUser = async (userRegistrationData: RegisterRequest): Promi
     return {
       status: isSuccess ? "success" : "error",
       message: response.data.message,
-      data: response.data.data || { token: tokenData, user: userData },
+      data: response.data.data || { user: userData },
       error: response.data.error,
     };
   } catch (error: any) {
