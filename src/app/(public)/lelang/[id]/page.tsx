@@ -63,7 +63,7 @@ export default function AuctionDetailPage() {
   };
 
   // Convert BackendAuctionDetail to AuctionData format for BidModal compatibility
-  console.log('AUCTION: ', auction)
+  console.log("AUCTION: ", auction);
   const convertedAuction = auction
     ? ({
         id: auction._id,
@@ -265,6 +265,14 @@ export default function AuctionDetailPage() {
               </p>
             </div>
 
+            {/* Auction Details/Notes */}
+            {auction.note && (
+              <div className="bg-white rounded-xl p-6 border border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Detail Ikan</h2>
+                <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: auction.note }} />
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className="flex gap-4">
               <button
@@ -279,14 +287,6 @@ export default function AuctionDetailPage() {
                 Lihat Leaderboard
               </button>
             </div>
-
-            {/* Auction Details/Notes */}
-            {auction.note && (
-              <div className="bg-white rounded-xl p-6 border border-gray-200">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Detail Ikan</h2>
-                <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: auction.note }} />
-              </div>
-            )}
           </div>
         </div>
       </div>

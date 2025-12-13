@@ -12,6 +12,43 @@ interface BidModalProps {
   auction: AuctionData | null;
 }
 
+// Japanese pattern SVG as background for empty space
+const JapanesePatternBg = () => (
+  <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-orange-50">
+    <svg className="absolute inset-0 w-full h-full opacity-30" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="seigaiha" x="0" y="0" width="40" height="20" patternUnits="userSpaceOnUse">
+          {/* Seigaiha (wave) pattern - traditional Japanese */}
+          <path d="M0 20 Q10 10 20 20 Q30 10 40 20" fill="none" stroke="#c53030" strokeWidth="0.5" opacity="0.4" />
+          <path d="M0 15 Q10 5 20 15 Q30 5 40 15" fill="none" stroke="#c53030" strokeWidth="0.5" opacity="0.3" />
+          <path d="M0 10 Q10 0 20 10 Q30 0 40 10" fill="none" stroke="#c53030" strokeWidth="0.5" opacity="0.2" />
+        </pattern>
+        <pattern id="asanoha" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+          {/* Asanoha (hemp leaf) pattern */}
+          <path d="M12 0 L12 12 M0 12 L12 12 M24 12 L12 12 M12 24 L12 12 M0 0 L12 12 M24 0 L12 12 M0 24 L12 12 M24 24 L12 12" fill="none" stroke="#c53030" strokeWidth="0.3" opacity="0.3" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#seigaiha)" />
+      <rect width="100%" height="100%" fill="url(#asanoha)" opacity="0.5" />
+    </svg>
+    {/* Decorative koi silhouette */}
+    <div className="absolute bottom-2 right-2 opacity-10">
+      <svg width="60" height="40" viewBox="0 0 60 40" fill="#c53030">
+        <ellipse cx="25" cy="20" rx="20" ry="12" />
+        <path d="M45 20 Q55 10 58 20 Q55 30 45 20" />
+        <circle cx="12" cy="17" r="2" fill="#fff" opacity="0.5" />
+      </svg>
+    </div>
+  </div>
+);
+
+// Helper function to check if media is video
+const isVideoFile = (url: string): boolean => {
+  const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi", ".mkv"];
+  const lowercaseUrl = url.toLowerCase();
+  return videoExtensions.some((ext) => lowercaseUrl.includes(ext));
+};
+
 export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [bidAmount, setBidAmount] = useState("");
@@ -98,10 +135,25 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
         <div className="p-6 space-y-6">
           <p className="text-gray-600 text-sm">Silakan masukkan nominal BID</p>
 
-          {/* Image Carousel */}
+          {/* Image/Video Carousel with 3:2 Aspect Ratio */}
           <div className="relative">
-            <div className="relative h-64 rounded-lg overflow-hidden">
-              <Image src={auction.images[currentImageIndex] || "/images/placeholder-koi.jpg"} alt={`${auction.title} - Image ${currentImageIndex + 1}`} fill className="object-cover" />
+            {/* 3:2 aspect ratio container with Japanese pattern background */}
+            <div className="relative w-full rounded-lg overflow-hidden" style={{ aspectRatio: "3/2" }}>
+              {/* Japanese pattern background for empty space */}
+              <JapanesePatternBg />
+
+              {/* Media container - centered with object-contain */}
+              {isVideoFile(auction.images[currentImageIndex] || "") ? (
+                <video key={currentImageIndex} src={auction.images[currentImageIndex]} className="absolute inset-0 w-full h-full object-contain z-10" controls playsInline preload="metadata" />
+              ) : (
+                <Image
+                  src={auction.images[currentImageIndex] || "/images/placeholder-koi.jpg"}
+                  alt={`${auction.title} - Image ${currentImageIndex + 1}`}
+                  fill
+                  className="object-contain z-10"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              )}
 
               {/* Navigation Arrows */}
               {auction.images.length > 1 && (
@@ -109,14 +161,14 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
                   <button
                     onClick={prevImage}
                     disabled={currentImageIndex === 0}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full p-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft size={16} />
                   </button>
                   <button
                     onClick={nextImage}
                     disabled={currentImageIndex === auction.images.length - 1}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full p-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronRight size={16} />
                   </button>
@@ -124,11 +176,16 @@ export default function BidModal({ isOpen, onClose, auction }: BidModalProps) {
               )}
             </div>
 
-            {/* Image Indicators */}
+            {/* Image/Video Indicators */}
             {auction.images.length > 1 && (
               <div className="flex justify-center mt-3 space-x-2">
-                {auction.images.map((_, index) => (
-                  <button key={index} onClick={() => setCurrentImageIndex(index)} className={`w-2 h-2 rounded-full transition-colors ${index === currentImageIndex ? "bg-primary" : "bg-gray-300"}`} />
+                {auction.images.map((media, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`w-2 h-2 rounded-full transition-colors relative ${index === currentImageIndex ? "bg-primary" : "bg-gray-300"}`}
+                    title={isVideoFile(media) ? "Video" : "Image"}
+                  />
                 ))}
               </div>
             )}

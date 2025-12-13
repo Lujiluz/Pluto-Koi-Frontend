@@ -17,6 +17,32 @@ interface BidModalProps {
   onSuccess?: () => void; // Callback to refresh auction data after successful bid
 }
 
+// Japanese pattern SVG as background for empty space
+const JapanesePatternBg = () => (
+  <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-orange-50">
+    <svg className="absolute inset-0 w-full h-full opacity-30" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="seigaiha-bid" x="0" y="0" width="40" height="20" patternUnits="userSpaceOnUse">
+          {/* Seigaiha (wave) pattern - traditional Japanese */}
+          <path d="M0 20 Q10 10 20 20 Q30 10 40 20" fill="none" stroke="#c53030" strokeWidth="0.5" opacity="0.4" />
+          <path d="M0 15 Q10 5 20 15 Q30 5 40 15" fill="none" stroke="#c53030" strokeWidth="0.5" opacity="0.3" />
+          <path d="M0 10 Q10 0 20 10 Q30 0 40 10" fill="none" stroke="#c53030" strokeWidth="0.5" opacity="0.2" />
+        </pattern>
+        <pattern id="asanoha-bid" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+          {/* Asanoha (hemp leaf) pattern */}
+          <path d="M12 0 L12 12 M0 12 L12 12 M24 12 L12 12 M12 24 L12 12 M0 0 L12 12 M24 0 L12 12 M0 24 L12 12 M24 24 L12 12" fill="none" stroke="#c53030" strokeWidth="0.3" opacity="0.3" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#seigaiha-bid)" />
+      <rect width="100%" height="100%" fill="url(#asanoha-bid)" opacity="0.5" />
+    </svg>
+    {/* Decorative koi silhouette */}
+    <div className="absolute bottom-2 right-2 opacity-10">
+      <Image src="/images/LOGO PLUTO-01.png" alt="Koi Silhouette" width={60} height={40} />
+    </div>
+  </div>
+);
+
 export default function BidModal({ isOpen, onClose, auction, onSuccess }: BidModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [bidAmount, setBidAmount] = useState("");
@@ -159,7 +185,12 @@ export default function BidModal({ isOpen, onClose, auction, onSuccess }: BidMod
 
   const renderCurrentMedia = () => {
     if (!auction || !auction.images || auction.images.length === 0) {
-      return <Image src="/images/koi/contoh_ikan.png" alt={auction?.title || "Auction item"} fill className="object-cover" />;
+      return (
+        <>
+          <JapanesePatternBg />
+          <Image src="/images/koi/contoh_ikan.png" alt={auction?.title || "Auction item"} fill className="object-contain z-10" />
+        </>
+      );
     }
 
     const currentMediaUrl = auction.images[currentImageIndex];
@@ -167,34 +198,46 @@ export default function BidModal({ isOpen, onClose, auction, onSuccess }: BidMod
 
     // If media error, always show fallback image
     if (mediaError) {
-      return <Image src="/images/koi/contoh_ikan.png" alt={auction.title} fill className="object-cover" />;
+      return (
+        <>
+          <JapanesePatternBg />
+          <Image src="/images/koi/contoh_ikan.png" alt={auction.title} fill className="object-contain z-10" />
+        </>
+      );
     }
 
     if (isVideo) {
       return (
-        <video
-          src={currentMediaUrl}
-          className="w-full h-full object-cover"
-          controls={true}
-          muted
-          onError={() => {
-            console.warn(`Video failed to load: ${currentMediaUrl}`);
-            setMediaError(true);
-          }}
-        />
+        <>
+          <JapanesePatternBg />
+          <video
+            src={currentMediaUrl}
+            className="absolute inset-0 w-full h-full object-contain z-10"
+            controls={true}
+            muted
+            playsInline
+            onError={() => {
+              console.warn(`Video failed to load: ${currentMediaUrl}`);
+              setMediaError(true);
+            }}
+          />
+        </>
       );
     } else {
       return (
-        <Image
-          src={currentMediaUrl}
-          alt={`${auction.title} - Media ${currentImageIndex + 1}`}
-          fill
-          className="object-cover"
-          onError={() => {
-            console.warn(`Image failed to load: ${currentMediaUrl}`);
-            setMediaError(true);
-          }}
-        />
+        <>
+          <JapanesePatternBg />
+          <Image
+            src={currentMediaUrl}
+            alt={`${auction.title} - Media ${currentImageIndex + 1}`}
+            fill
+            className="object-contain z-10"
+            onError={() => {
+              console.warn(`Image failed to load: ${currentMediaUrl}`);
+              setMediaError(true);
+            }}
+          />
+        </>
       );
     }
   };
@@ -229,9 +272,9 @@ export default function BidModal({ isOpen, onClose, auction, onSuccess }: BidMod
         <div className="p-6 space-y-6">
           <p className="text-gray-600 text-md">Silakan masukkan nominal BID</p>
 
-          {/* Media Carousel */}
+          {/* Media Carousel with 3:2 Aspect Ratio */}
           <div className="relative">
-            <div className="relative h-64 rounded-lg overflow-hidden">
+            <div className="relative w-full rounded-lg overflow-hidden" style={{ aspectRatio: "3/2" }}>
               {renderCurrentMedia()}
 
               {/* Navigation Arrows */}
@@ -240,14 +283,14 @@ export default function BidModal({ isOpen, onClose, auction, onSuccess }: BidMod
                   <button
                     onClick={prevImage}
                     disabled={currentImageIndex === 0}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed z-10"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed z-20"
                   >
                     <ChevronLeft size={16} />
                   </button>
                   <button
                     onClick={nextImage}
                     disabled={currentImageIndex === auction.images.length - 1}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed z-10"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FFE6E6] text-[#FD0001] cursor-pointer rounded-full p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed z-20"
                   >
                     <ChevronRight size={16} />
                   </button>
