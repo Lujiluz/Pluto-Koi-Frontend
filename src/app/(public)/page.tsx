@@ -1,74 +1,19 @@
 import Image from "next/image";
-import LiquidGlassContainer from "../components/ui/LiquidGlassContainer";
-import { ArrowRight, ShoppingBag, Zap } from "react-feather";
 import { FishIcon, PeopleIcon, TrophyIcon } from "../components/icons/landingPage";
 import GallerySection from "../components/sections/GallerySection";
-import ProductsSection from "../components/sections/ProductsSection";
+import HeroContent from "../components/sections/HeroContent";
 import Footer from "../components/layout/public/Footer";
-import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] flex items-center" id="beranda">
+      <section className="relative min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] flex items-center justify-center" id="beranda">
         {/* Background */}
         <Image src="/hero/hero-background.webp" alt="Koi Fish Background" fill className="object-cover object-center" priority />
 
         {/* Content */}
-        <div className="container-custom relative z-10 px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 w-full items-center gap-8 lg:gap-0">
-            {/* Hero Image */}
-            <div className="hidden lg:block">
-              <Image src="/hero/hero-complement.png" alt="Koi Fish Mascot" width={545} height={522} priority />
-            </div>
-
-            {/* Hero Text with Liquid Glass */}
-            <div className="relative lg:absolute lg:z-20 lg:w-full lg:top-[2rem] lg:left-[8rem]">
-              <LiquidGlassContainer variant="subtle" padding="lg" borderRadius="xl" className="max-w-full lg:max-w-3xl text-white">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
-                  Temukan Keseruan Lelang
-                  <br className="hidden sm:block" />
-                  <span className="sm:hidden"> </span>& Belanja Ikan Favoritmu!
-                </h1>
-                <p className="text-sm sm:text-base lg:text-lg opacity-90 mb-6 sm:mb-8 leading-relaxed">Ikut bid, belanja alat, atau lihat galeri hasil lelang kami.</p>
-
-                {/* Quick Action Buttons Banner */}
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
-                  <Link href="/lelang" className="group flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-lg p-4 sm:p-5 transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <Zap size={20} className="sm:w-6 sm:h-6 text-white" />
-                        </div>
-                        <div className="text-left">
-                          <h3 className="text-sm sm:text-base font-semibold text-white">Lelang Ikan</h3>
-                          <p className="text-xs sm:text-sm text-white/80">Mulai bid sekarang</p>
-                        </div>
-                      </div>
-                      <ArrowRight size={18} className="text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                    </div>
-                  </Link>
-
-                  <Link href="/belanja" className="group flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-lg p-4 sm:p-5 transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <ShoppingBag size={20} className="sm:w-6 sm:h-6 text-white" />
-                        </div>
-                        <div className="text-left">
-                          <h3 className="text-sm sm:text-base font-semibold text-white">Belanja Produk</h3>
-                          <p className="text-xs sm:text-sm text-white/80">Alat & ikan segar</p>
-                        </div>
-                      </div>
-                      <ArrowRight size={18} className="text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                    </div>
-                  </Link>
-                </div>
-              </LiquidGlassContainer>
-            </div>
-          </div>
-        </div>
+        <HeroContent />
       </section>
 
       {/* Features Section */}
