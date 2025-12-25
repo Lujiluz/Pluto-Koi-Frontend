@@ -79,19 +79,10 @@ export function useAuctionSocket() {
 
   // Initialize socket connection
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-
-    if (!token) {
-      console.warn("No auth token found, WebSocket connection will not be established");
-      return;
-    }
-
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL?.replace("/api/pluto-koi/v1", "") || "http://localhost:1728";
 
     const newSocket = io(backendUrl, {
-      auth: {
-        token: token,
-      },
+      withCredentials: true, // Use HttpOnly cookie for authentication
       transports: ["websocket", "polling"],
       reconnection: true,
       reconnectionAttempts: 5,

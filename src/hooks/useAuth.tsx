@@ -2,7 +2,7 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { User } from "@/lib/types";
-import { getCurrentUser, isAuthenticated as checkAuthenticated } from "@/services/authService";
+import { getCurrentUser, isAuthenticated as checkAuthenticated, logoutUser } from "@/services/authService";
 
 interface AuthContextType {
   user: User | null;
@@ -25,7 +25,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const refreshAuth = () => {
     console.log("refreshAuth called");
-    console.log("localStorage authToken:", localStorage.getItem("authToken"));
     console.log("localStorage user:", localStorage.getItem("user"));
 
     try {
@@ -47,12 +46,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
-    setUser(null);
-    setIsAuthenticated(false);
-    window.location.href = "/";
+  const logout = async () => {
+    try {
+      // Call backend to invalidate session and clear HttpOnly cookie
+      await logoutUser();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+      setIsAuthenticated(false);
+      window.location.href = "/";
+    }
   };
 
   useEffect(() => {

@@ -23,38 +23,19 @@ export const loginUser = async (credentials: LoginRequest): Promise<AuthResponse
     const tokenData = response.data.data?.token || response.data.token;
     const userData = response.data.data?.user || response.data.user;
 
-    if (isSuccess && tokenData) {
-      // Check if localStorage is available
+    if (isSuccess && userData) {
+      // Store user data in localStorage (token is now handled via HttpOnly cookie by backend)
       if (typeof window !== "undefined" && window.localStorage) {
-        // Store token in localStorage
-        console.log("Storing token in localStorage:", tokenData);
         try {
-          localStorage.setItem("authToken", tokenData);
           localStorage.setItem("user", JSON.stringify(userData));
-
-          // Verify storage immediately
-          const storedToken = localStorage.getItem("authToken");
-          const storedUser = localStorage.getItem("user");
-          console.log("Token stored successfully:", storedToken === tokenData);
-          console.log("User stored successfully:", !!storedUser);
+          console.log("User data stored successfully");
         } catch (storageError) {
           console.error("localStorage error:", storageError);
-          return {
-            status: "error",
-            error: "Failed to store authentication data. Please check if localStorage is enabled.",
-          };
         }
-      } else {
-        console.error("localStorage not available");
-        return {
-          status: "error",
-          error: "Browser storage not available. Please enable localStorage.",
-        };
       }
     } else {
-      console.log("Login failed - no token received or not successful", {
+      console.log("Login failed - not successful", {
         isSuccess,
-        tokenData,
         userData,
         fullResponse: response.data,
       });
@@ -169,10 +150,18 @@ export const registerUser = async (userRegistrationData: RegisterRequest): Promi
   }
 };
 
-// Logout service
-export const logoutUser = (): void => {
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("user");
+// Logout service - calls backend to invalidate session and clear cookie
+export const logoutUser = async (): Promise<void> => {
+  try {
+    await AxiosInstance.post("/auth/logout");
+    console.log("Logout successful - session invalidated");
+  } catch (error) {
+    console.error("Logout API error:", error);
+    // Continue with local cleanup even if API fails
+  } finally {
+    // Clear user data from localStorage
+    localStorage.removeItem("user");
+  }
 };
 
 // Get current user from localStorage
@@ -185,9 +174,10 @@ export const getCurrentUser = () => {
   }
 };
 
-// Check if user is authenticated
+// Check if user is authenticated (based on stored user data)
+// Note: Actual auth is validated by backend via HttpOnly cookie
 export const isAuthenticated = (): boolean => {
-  return !!localStorage.getItem("authToken");
+  return !!localStorage.getItem("user");
 };
 
 // Validation functions to match backend schema

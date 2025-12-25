@@ -11,6 +11,7 @@ import RegisterModal from "../../common/RegisterModal";
 import LoginModal from "../../common/LoginModal";
 import ProgressLink from "../../common/ProgressLink";
 import { useAuth } from "@/hooks/useAuth";
+import { useToastNotification } from "@/hooks/useToastNotification";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,21 +20,32 @@ export default function Header() {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const hasHandledVerified = useRef(false);
   const { user, isAuthenticated, logout, refreshAuth } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { showSuccess } = useToastNotification();
 
-  // Check for verified=true query param on mount
+  // Check for verified=true or openLogin=true query param on mount
   useEffect(() => {
-    if (searchParams.get("verified") === "true") {
+    if (searchParams.get("verified") === "true" && !hasHandledVerified.current) {
+      hasHandledVerified.current = true;
       setShowVerifiedMessage(true);
       setIsLoginModalOpen(true);
+      // Show toast notification
+      showSuccess("Akun Anda berhasil diverifikasi! Silahkan lakukan login", "Verifikasi Berhasil");
       // Clean up the URL by removing the query param
       const url = new URL(window.location.href);
       url.searchParams.delete("verified");
       router.replace(url.pathname, { scroll: false });
+    } else if (searchParams.get("openLogin") === "true") {
+      setIsLoginModalOpen(true);
+      // Clean up the URL by removing the query param
+      const url = new URL(window.location.href);
+      url.searchParams.delete("openLogin");
+      router.replace(url.pathname, { scroll: false });
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, showSuccess]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -191,8 +203,10 @@ export default function Header() {
         </div>
 
         {/* Mobile Menu */}
-        <div className={cn("bg-gradient-to-b from-gray-50 to-white lg:hidden transition-all duration-300 ease-in-out overflow-hidden border-t border-gray-100", isMobileMenuOpen ? "max-h-[600px] pb-6" : "max-h-0")}>
-          <nav className="flex flex-col space-y-1 pt-4 px-4">
+        <div
+          className={cn("bg-gradient-to-b from-gray-50 to-white lg:hidden transition-all duration-300 ease-in-out overflow-hidden border-t border-gray-100", isMobileMenuOpen ? "max-h-[calc(100vh-4rem)] pb-6 overflow-y-auto" : "max-h-0")}
+        >
+          <nav className="flex flex-col space-y-1 pt-4 px-4 pb-4">
             {NAVIGATION.main.map((item) => (
               <ProgressLink
                 key={item.href}
