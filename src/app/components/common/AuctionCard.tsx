@@ -75,7 +75,7 @@ export default function AuctionCard({ auction, viewMode = "grid" }: AuctionCardP
       }
 
       return (
-        <div className="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-md text-sm font-medium">
+        <div className="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-md text-sm font-medium" data-testid="auction-countdown">
           Berakhir dalam {formatTime(timeRemaining.hours)}:{formatTime(timeRemaining.minutes)}:{formatTime(timeRemaining.seconds)}
         </div>
       );
@@ -231,7 +231,7 @@ export default function AuctionCard({ auction, viewMode = "grid" }: AuctionCardP
 
   // Grid View Layout (default)
   return (
-    <div className="card-hover overflow-hidden">
+    <div className="card-hover overflow-hidden" data-testid="auction-card">
       {/* Media (Image or Video) - 3:2 aspect ratio */}
       <div className="relative w-full mb-4 bg-gray-100 rounded-lg" style={{ aspectRatio: "3/2" }}>
         {renderMedia()}

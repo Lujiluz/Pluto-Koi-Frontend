@@ -617,9 +617,15 @@ export default function AuctionLeaderboardModal({ isOpen, auction, onClose }: Au
   // WRAP DENGAN createPortal
   return createPortal(
     // Wrapper untuk backdrop dan centering (z-[60] untuk memastikan di atas semua)
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 sm:p-6" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 sm:p-6" onClick={onClose} data-testid="leaderboard-modal-overlay">
       {/* Modal Content */}
-      <div className="relative w-full max-w-4xl transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="relative w-full max-w-4xl transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+        data-testid="leaderboard-modal"
+        role="dialog"
+        aria-modal="true"
+      >
         {/* Tombol Close Fix: Posisi absolute di pojok kanan atas modal box */}
         <button onClick={onClose} className="absolute top-4 right-4 p-2 z-10 bg-white hover:bg-gray-100 rounded-full transition-colors shadow-md border border-gray-100">
           <X size={20} />

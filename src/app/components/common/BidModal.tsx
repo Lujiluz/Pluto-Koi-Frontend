@@ -248,11 +248,14 @@ export default function BidModal({ isOpen, onClose, auction, onSuccess }: BidMod
 
   // WRAP DENGAN createPortal
   return createPortal(
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 sm:p-6" onClick={handleOverlayClick}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 sm:p-6" onClick={handleOverlayClick} data-testid="bid-modal-overlay">
       <div
         className="bg-white rounded-2xl relative animate-in fade-in-0 zoom-in-95 duration-200
   w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl max-h-[90vh] overflow-y-auto no-scrollbar"
         onClick={(e) => e.stopPropagation()}
+        data-testid="bid-modal"
+        role="dialog"
+        aria-modal="true"
       >
         {/* Tombol Close Fix */}
         <button onClick={onClose} className="absolute top-4 right-4 p-2 z-10 bg-white hover:bg-gray-100 rounded-full transition-colors shadow-md border border-gray-100">

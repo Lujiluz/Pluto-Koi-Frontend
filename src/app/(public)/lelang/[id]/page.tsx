@@ -166,7 +166,7 @@ export default function AuctionDetailPage() {
               {isAuctionEnded ? (
                 <div className="absolute top-4 left-4 bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Lelang Selesai</div>
               ) : (
-                <div className="absolute top-4 left-4 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium">
+                <div className="absolute top-4 left-4 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium" data-testid="auction-countdown">
                   {timeRemaining.days > 0 ? (
                     <>
                       {timeRemaining.days} Hari {formatTime(timeRemaining.hours)}:{formatTime(timeRemaining.minutes)}
@@ -278,12 +278,13 @@ export default function AuctionDetailPage() {
               <button
                 onClick={handleBidClick}
                 disabled={isAuctionEnded}
+                data-testid="bid-button"
                 className={`flex-1 py-4 px-6 rounded-xl font-semibold text-lg transition-all ${isAuctionEnded ? "bg-gray-400 text-white cursor-not-allowed" : "bg-primary hover:bg-primary-600 text-white shadow-lg hover:shadow-xl"}`}
               >
                 {isAuctionEnded ? "Lelang Selesai" : "Mulai Bid"}
               </button>
 
-              <button onClick={handleLeaderboardClick} className="flex-1 py-4 px-6 rounded-xl font-semibold text-lg bg-white text-primary border-2 border-primary hover:bg-primary-50 transition-all">
+              <button onClick={handleLeaderboardClick} data-testid="leaderboard-button" className="flex-1 py-4 px-6 rounded-xl font-semibold text-lg bg-white text-primary border-2 border-primary hover:bg-primary-50 transition-all">
                 Lihat Leaderboard
               </button>
             </div>
