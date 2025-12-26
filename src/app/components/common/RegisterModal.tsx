@@ -190,7 +190,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6">
       <div
         className=" bg-white rounded-2xl p-6 sm:p-8 relative animate-in fade-in-0 zoom-in-95 duration-200
-  w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl max-h-[90vh] overflow-y-auto"
+  w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl max-h-[90vh] overflow-y-auto no-scrollbar"
       >
         {/* Close Button */}
         <button onClick={handleClose} className="absolute top-4 right-4 p-1 rounded-full cursor-pointer transition-colors">
@@ -240,7 +240,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
                 </div>
               )}
 
-              <div className="grid grid-rows-4 grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                 {/* Name */}
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-2">
@@ -322,7 +322,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
                 </div>
 
                 {/* Password */}
-                <div className="row-start-3">
+                <div>
                   <label htmlFor="password" className="block text-sm font-medium mb-2">
                     Password
                   </label>
@@ -347,7 +347,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
                 </div>
 
                 {/* Confirm Password */}
-                <div className="row-start-3">
+                <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
                     Konfirmasi Password
                   </label>
@@ -372,7 +372,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
                 </div>
 
                 {/* City */}
-                <div className="row-start-4">
+                <div>
                   <label htmlFor="address.city" className="block text-sm font-medium mb-2">
                     Kota
                   </label>
@@ -392,7 +392,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
                 </div>
 
                 {/* State */}
-                <div className="row-start-4">
+                <div>
                   <label htmlFor="address.state" className="block text-sm font-medium mb-2">
                     Provinsi
                   </label>
@@ -413,7 +413,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onSucc
               </div>
 
               {/* Additional Address Fields Row */}
-              <div className="grid grid-cols-2 gap-8 mt-4">
+              <div className="grid grid-cols-2 gap-4 md:gap-8 mt-4">
                 {/* ZIP Code */}
                 <div>
                   <label htmlFor="address.zipCode" className="block text-sm font-medium mb-2">
