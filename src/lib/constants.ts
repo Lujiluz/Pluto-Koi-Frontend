@@ -105,10 +105,10 @@ export const Z_INDEX = {
 // Navigation items
 export const NAVIGATION = {
   main: [
-    { label: "Beranda", href: "/#beranda" },
-    { label: "Fitur", href: "/#fitur" },
+    { label: "Beranda", href: "/" },
+    { label: "Tentang", href: "/about" },
     { label: "Lelang", href: "/lelang" },
-    { label: "Galeri", href: "/#galeri" },
+    { label: "Galeri", href: "/galeri" },
     { label: "Belanja", href: "/belanja" },
   ],
 } as const;
@@ -129,3 +129,5 @@ export const WHATSAPP_TEMPLATES = {
   general: "Halo, saya ingin bertanya lebih lanjut tentang Pluto Koi.",
   auctionWinConfirmation: (auctionName: string, userName: string) => `Halo, Saya ${userName} adalah pemenang bid "${auctionName}" dan hendak mengirimkan bukti pembayaran sebagai berikut.`,
 };
+
+export const keywords: string[] = ["pluto koi", "sejarah pluto koi", "tentang pluto koi", "pusat koi", "koi centre", "ikan koi berkualitas", "koi indonesia", "lelang koi", "shiro utsuri", "ikan koi shiro utsuri"];

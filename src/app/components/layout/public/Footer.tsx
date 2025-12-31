@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FacebookIcon, InstagramIcon, TiktokIcon, WhatsappIcon, YoutubeIcon } from "../../icons/landingPage";
+import { FacebookIcon, InstagramIcon, MapIcon, TiktokIcon, WhatsappIcon, YoutubeIcon } from "../../icons/landingPage";
 import { NAVIGATION, SITE_CONFIG, WHATSAPP_TEMPLATES } from "@/lib/constants";
 import Link from "next/link";
 
@@ -10,25 +10,25 @@ export default function Footer() {
 
   const socialLinks = [
     { icon: YoutubeIcon, href: "https://youtube.com/@plutokarpio1984", label: "Youtube", name: "plutokarpio1984" },
-    // { icon: FacebookIcon, href: "#", label: "Facebook", name: "plutoKoiOfficial" },
     { icon: InstagramIcon, href: "https://www.instagram.com/pluto_koi_centre", label: "Instagram", name: "pluto_koi_centre" },
     { icon: WhatsappIcon, href: `https://wa.me/+6285780004878?text=${encodeURIComponent(WHATSAPP_TEMPLATES.general)}`, label: "Whatsapp", name: "+62-857-8000-4878" },
     { icon: TiktokIcon, href: "https://www.tiktok.com/@plutokarpio", label: "Tiktok", name: "plutokarpio" },
+    { icon: MapIcon, href: "https://maps.app.goo.gl/QQeS6CQ9WiABcY6R9", label: "Maps", name: "Pluto Koi Centre" },
   ];
 
   return (
     <footer className="bg-black text-white py-8 sm:py-12 lg:py-16 px-4 sm:px-6">
       <div className="container-custom">
         {/* Main Footer Content */}
-        <div className="flex flex-col items-center space-y-8 lg:flex-row lg:justify-between lg:space-y-0 mb-8 sm:mb-12">
+        <div className="flex flex-col items-center space-y-8 px-8 lg:flex-row lg:justify-between lg:space-y-0 mb-8 sm:mb-12">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 order-1 lg:order-none">
+          <Link href="/" className="flex items-center me-18 md:me-0 order-1 lg:order-none">
             <Image src="/images/LOGO PLUTO-02.png" alt="Logo" width={100} height={100} />
             {/* <span className="font-extralight tracking-[0.2em] text-base sm:text-lg lg:text-xl font-poppins">{SITE_CONFIG.name.toUpperCase()}</span> */}
           </Link>
 
           {/* Navigation Links */}
-          <nav className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 lg:gap-12 xl:gap-16 order-2 lg:order-none">
+          <nav className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 lg:gap-10 xl:gap-12 order-2 lg:order-none">
             {NAVIGATION.main.map((link) => (
               <a key={link.label} href={link.href} className="font-bold hover:text-gray-300 transition-colors duration-300 text-sm sm:text-base lg:text-lg text-center">
                 {link.label}

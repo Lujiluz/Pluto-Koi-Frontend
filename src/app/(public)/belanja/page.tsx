@@ -1,16 +1,41 @@
 import ProductPageClient from "@/app/components/pages/ProductPageClient";
+import { keywords } from "@/lib/constants";
 import { getProductsServer } from "@/services/productService";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Belanja - Pluto Koi",
   description: "Jelajahi koleksi lengkap produk koi terbaik. Temukan ikan koi berkualitas, peralatan akuarium, pakan, dan aksesoris lainnya untuk kolam ikan koi Anda.",
-  keywords: "belanja koi, produk koi, ikan koi, akuarium, pakan ikan, aksesoris koi",
+  keywords: keywords,
   openGraph: {
     title: "Belanja Produk Koi Terbaik - Pluto Koi",
     description: "Temukan berbagai produk koi berkualitas tinggi dengan harga terbaik. Dapatkan ikan koi, peralatan, dan aksesoris untuk kolam impian Anda.",
     type: "website",
+    images: [
+      {
+        url: "/images/about/og-about.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Pluto Koi Centre",
+      },
+    ],
   },
+};
+
+// JSON-LD structured data for better SEO
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Pluto Koi Centre",
+  description: "Spesialis Koi Shiro Utsuri berkualitas sejak 2014, menyediakan ikan koi terbaik dengan passion dan dedikasi tinggi.",
+  foundingDate: "2014",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://plutokoi.com",
+  logo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://plutokoi.com"}/images/LOGO PLUTO-02.png`,
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "ID",
+  },
+  sameAs: ["https://www.instagram.com/pluto_koi_centre", "https://youtube.com/@plutokarpio1984", "https://www.tiktok.com/@plutokarpio"],
 };
 
 interface ProductPageProps {
@@ -43,8 +68,11 @@ export default async function ProductPage({ searchParams }: ProductPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <ProductPageClient initialData={initialData} initialParams={{ page, limit, search, category, type }} />
-    </div>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <div className="min-h-screen bg-white">
+        <ProductPageClient initialData={initialData} initialParams={{ page, limit, search, category, type }} />
+      </div>
+    </>
   );
 }
