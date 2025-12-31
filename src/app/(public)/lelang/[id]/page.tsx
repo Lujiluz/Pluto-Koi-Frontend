@@ -84,14 +84,14 @@ export default function AuctionDetailPage() {
     const isVideo = isVideoUrl(mediaUrl);
 
     if (mediaError[index]) {
-      return <Image src="/images/koi/contoh_ikan.png" alt={auction?.itemName || "Auction"} fill className="object-cover" />;
+      return <Image src="/images/koi/contoh_ikan.png" alt={auction?.itemName || "Auction"} fill className="object-contain" />;
     }
 
     if (isVideo) {
       return (
         <video
           src={mediaUrl}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
           controls
           autoPlay={index === selectedMediaIndex}
           loop
@@ -107,7 +107,7 @@ export default function AuctionDetailPage() {
           src={mediaUrl}
           alt={auction?.itemName || "Auction"}
           fill
-          className="object-cover"
+          className="object-contain"
           onError={() => {
             setMediaError((prev) => ({ ...prev, [index]: true }));
           }}
@@ -159,7 +159,7 @@ export default function AuctionDetailPage() {
           {/* Left Column - Media Gallery */}
           <div className="space-y-4">
             {/* Main Media Display */}
-            <div className="relative aspect-square bg-gray-200 rounded-xl overflow-hidden">
+            <div className="relative bg-gray-200 rounded-xl overflow-hidden" style={{ aspectRatio: "3/2" }}>
               {auction.media.length > 0 && renderMedia(auction.media[selectedMediaIndex].fileUrl, selectedMediaIndex)}
 
               {/* Status Badge */}
@@ -187,18 +187,19 @@ export default function AuctionDetailPage() {
                   <button
                     key={media._id}
                     onClick={() => setSelectedMediaIndex(index)}
-                    className={`relative aspect-square bg-gray-200 rounded-lg overflow-hidden border-2 transition-all ${selectedMediaIndex === index ? "border-primary" : "border-transparent hover:border-gray-300"}`}
+                    className={`relative bg-gray-200 rounded-lg overflow-hidden border-2 transition-all ${selectedMediaIndex === index ? "border-primary" : "border-transparent hover:border-gray-300"}`}
+                    style={{ aspectRatio: "3/2" }}
                   >
                     {mediaError[index] ? (
-                      <Image src="/images/koi/contoh_ikan.png" alt={`Thumbnail ${index + 1}`} fill className="object-cover" />
+                      <Image src="/images/koi/contoh_ikan.png" alt={`Thumbnail ${index + 1}`} fill className="object-contain" />
                     ) : isVideoUrl(media.fileUrl) ? (
-                      <video src={media.fileUrl} className="w-full h-full object-cover" muted playsInline />
+                      <video src={media.fileUrl} className="w-full h-full object-contain" muted playsInline />
                     ) : (
                       <Image
                         src={media.fileUrl}
                         alt={`Thumbnail ${index + 1}`}
                         fill
-                        className="object-cover"
+                        className="object-contain"
                         onError={() => {
                           setMediaError((prev) => ({ ...prev, [index]: true }));
                         }}
