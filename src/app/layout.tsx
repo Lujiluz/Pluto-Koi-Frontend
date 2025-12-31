@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import { SITE_CONFIG } from "@/lib/constants";
 import LiquidGlassSvgFilter from "./components/icons/SvgFilters";
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth translated-ltr">
       <body className="font-sans antialiased">
-        <TopProgressBar />
+        <Suspense fallback={null}>
+          <TopProgressBar />
+        </Suspense>
         <LiquidGlassSvgFilter />
         {children}
       </body>

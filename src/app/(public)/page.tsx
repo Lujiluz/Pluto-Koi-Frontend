@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/about/og-about.jpg",
+        url: `${process.env.NEXT_PUBLIC_SITE_URL}/images/about/og-about.jpg`,
         width: 1200,
         height: 630,
         alt: "Pluto Koi Centre",
