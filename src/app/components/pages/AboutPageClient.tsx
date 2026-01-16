@@ -10,33 +10,39 @@ import { cn } from "@/lib/utils";
 const ACTIVITY_IMAGES = [
   {
     id: 1,
-    src: "/images/moments/bento_image_1.png",
+    src: "/images/about/20231104_101318.jpg",
     alt: "Kegiatan lelang koi Pluto Koi",
     caption: "Momen Lelang Koi",
   },
   {
     id: 2,
-    src: "/images/moments/bento_image_2.png",
-    alt: "Pengunjung melihat koleksi koi",
-    caption: "Kunjungan Pelanggan",
+    src: "/images/about/IMG_20231029_163640.jpg",
+    alt: "Perawatan kolam koi",
+    caption: "Perawatan Premium",
   },
   {
     id: 3,
-    src: "/images/moments/bento_image_1.png",
-    alt: "Komunitas pecinta koi",
-    caption: "Komunitas Koi",
-  },
-  {
-    id: 4,
-    src: "/images/moments/bento_image_2.png",
+    src: "/images/about/20251104_135902.jpg",
     alt: "Event koi show",
     caption: "Koi Show Event",
   },
   {
-    id: 5,
-    src: "/images/moments/bento_image_1.png",
+    id: 4,
+    src: "/images/about/20251113_171826.jpg",
     alt: "Perawatan kolam koi",
     caption: "Perawatan Premium",
+  },
+  {
+    id: 5,
+    src: "/images/about/20251031_150921.jpg",
+    alt: "Komunitas pecinta koi",
+    caption: "Komunitas Koi",
+  },
+  {
+    id: 6,
+    src: "/images/about/20251031_103938.jpg",
+    alt: "Pengunjung melihat koleksi koi",
+    caption: "Kunjungan Pelanggan",
   },
 ];
 
@@ -250,14 +256,15 @@ export default function AboutPageClient() {
               </h2>
               <div className="space-y-4 text-gray-600 leading-relaxed text-justify">
                 <p>
-                  <strong className="text-gray-900">Pluto Koi Centre</strong> didirikan pada tahun 2014 dengan visi sederhana namun kuat: menghadirkan ikan koi bertipe shiro utsuri berkualitas terbaik untuk para pecinta koi di Indonesia.
+                  <strong className="text-gray-900">Pluto Koi Centre</strong> is a premium koi farm dedicated to the art, science, and passion of high-quality Nishikigoi.
                 </p>
                 <p>
-                  Berawal dari hobi yang kemudian berkembang menjadi passion, kami telah melewati perjalanan panjang. Setiap langkah yang kami ambil selalu didasari oleh cinta dan dedikasi terhadap keindahan
-                  ikan koi.
+                  Founded by Yudha D Kandi, the visionary founder and driving force behind Pluto Koi Centre. With deep expertise in koi farm and a lifelong passion for ornamental fish, Yudha has established himself as one of Indonesia’s
+                  most respected koi specialists
                 </p>
-                <p>Kini, Pluto Koi telah menjadi salah satu pusat koi terpercaya yang tidak hanya menyediakan ikan koi tipe shiro utsuri berkualitas premium, tetapi juga menjadi wadah bagi komunitas pencinta koi shiro utsuri untuk berbagi pengalaman dan pengetahuan.</p>
-                <p>Melalui berbagai event lelang dan kegiatan komunitas, kami terus berkomitmen untuk mengembangkan hobi koi di Indonesia dan menghubungkan para pencinta koi shiro utsuri dari berbagai daerah.</p>
+                <p>Over the years, Pluto Koi has built a remarkable reputation in the koi community — particularly for exceptional work with the Shiro Utsuri variety and numerous awards and trophies.</p>
+                <p>Based in Tangerang Selatan, Indonesia, Pluto Koi Centre operates under carefully controlled water quality, nutrition, and biosecurity systems to ensure every koi grows in an optimal environment.</p>
+                <p>Pluto Koi is also a proud member of the Japan Nishikigoi Association, connecting us directly with global breeders, standards, and innovations in Nishikigoi.</p>
               </div>
             </div>
           </div>
